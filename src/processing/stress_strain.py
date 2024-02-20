@@ -11,8 +11,7 @@ import pandas as pd
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, initial_length_field, \
   height_offset_field, height_field, width_offset_field, width_field, \
-  extension_field, stress_field, time_field, position_1_field, \
-  position_2_field
+  extension_field, stress_field, time_field, position_field
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -52,7 +51,7 @@ if __name__ == '__main__':
   notes = notes[notes[identifier_field] == test_nr]
 
   # Calculating the extension from the position and the initial distance
-  position['Total'] = position[position_1_field] + position[position_2_field]
+  position['Total'] = position[position_field]
   position_interp = np.stack((effort[time_field].values,
                               np.interp(effort[time_field].values,
                                         position[time_field].values,
