@@ -68,7 +68,9 @@ if __name__ == '__main__':
             label=label, color=color)
 
   # Setting the axes labels and the title
-  ax.set_title('All stress-strain curves')
+  ax.set_title(f'All stress-strain curves\n'
+               f'{notes_file.parent.parent.parent.name} '
+               f'{notes_file.parent.parent.name}')
   ax.set_xlabel(extension_field)
   ax.set_ylabel(stress_field)
 
