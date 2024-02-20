@@ -55,9 +55,12 @@ if __name__ == '__main__':
 
   # Reading data from the moduli file
   moduli = pd.read_csv(moduli_file)
-  young = float(moduli[young_field][moduli[identifier_field] == test_nr])
-  hyper = float(moduli[hyper_field][moduli[identifier_field] == test_nr])
-  offset = float(moduli[offset_field][moduli[identifier_field] == test_nr])
+  young = float(moduli[young_field]
+                [moduli[identifier_field] == test_nr].iloc[0])
+  hyper = float(moduli[hyper_field]
+                [moduli[identifier_field] == test_nr].iloc[0])
+  offset = float(moduli[offset_field]
+                 [moduli[identifier_field] == test_nr].iloc[0])
 
   # Getting the extension range of the valid data
   min_extenso = data[extension_field].min()

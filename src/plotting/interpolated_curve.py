@@ -45,8 +45,8 @@ if __name__ == '__main__':
 
   # Reading data from the Yeoh parameter file
   yeoh = pd.read_csv(yeoh_file)
-  c0 = float(yeoh[yeoh_0_field][yeoh[identifier_field] == test_nr])
-  c1 = float(yeoh[yeoh_1_field][yeoh[identifier_field] == test_nr])
+  c0 = float(yeoh[yeoh_0_field][yeoh[identifier_field] == test_nr].iloc[0])
+  c1 = float(yeoh[yeoh_1_field][yeoh[identifier_field] == test_nr].iloc[0])
 
   # Calculating the stress with Yeoh's model
   fitted = yeoh_2(data[extension_field].values, c0, c1)

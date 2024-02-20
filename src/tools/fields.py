@@ -4,9 +4,9 @@
 
 # Fields in the results file
 identifier_field = 'Number'
-condition_field = 'Type'
-type_field = 'Muscle'
-height_offset_field = 'Laser offset (mm)'
+condition_field = 'Index'
+type_field = 'Type'
+height_offset_field = None
 height_field = 'Height (mm)'
 width_offset_field = None
 width_field = 'Width (mm)'
@@ -23,8 +23,7 @@ hyperelastic_modulus_field = 'Hyperelastic modulus (kPa)'
 
 # Fields of the data files
 time_field = 't(s)'
-position_1_field = 'position1(mm)'
-position_2_field = 'position2(mm)'
+position_field = 'pos(mm)'
 effort_field = 'F(N)'
 
 # Fields in the stress-strain file

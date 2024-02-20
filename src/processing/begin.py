@@ -8,6 +8,7 @@ saved at the provided location."""
 
 import argparse
 import pandas as pd
+from typing import Optional
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, begin_field, \
@@ -42,7 +43,7 @@ if __name__ == '__main__':
   max_points_file = args.max_points_file[0]
 
   # Creating the dataframe to save
-  to_write = pd.DataFrame(columns=[identifier_field, begin_field])
+  to_write: Optional[pd.DataFrame] = None
 
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
@@ -59,9 +60,14 @@ if __name__ == '__main__':
     # Determining the beginning point of the valid data
     begin = data[extension_field][data[stress_field] >
                                   threshold * max_stress].min()
+
     # Adding the values to the dataframe to save
-    to_write = pd.concat((to_write, pd.DataFrame({identifier_field: [test_nr],
-                                                  begin_field: [begin]})))
+    if to_write is None:
+      to_write = pd.DataFrame({identifier_field: [test_nr],
+                               begin_field: [begin]})
+    else:
+      to_write = pd.concat((to_write, pd.DataFrame(
+        {identifier_field: [test_nr], begin_field: [begin]})))
 
   # Saving the values to the destination file
   to_write.to_csv(destination, index=False)

@@ -1,5 +1,8 @@
 # This file contains all the variables holding the folder and file names
 
+# Path to the Python interpreter to use
+PYTHON_EXE := python
+
 # Path to the experimental data files
 TEST_DATA_FOLDER := test_data
 NOTES_FILE := $(TEST_DATA_FOLDER)/notes.csv
@@ -9,14 +12,10 @@ EFFORT_FILE_NAME := effort.csv
 POSITION_FILE_NAME := position.csv
 
 # List of the valid effort data files
-ALL_EFFORT_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(EFFORT_FILE_NAME))
-EFFORT_TO_EXCLUDE := $(TEST_DATA_FOLDER)/test_1/$(EFFORT_FILE_NAME) $(TEST_DATA_FOLDER)/test_2/$(EFFORT_FILE_NAME) $(TEST_DATA_FOLDER)/test_3/$(EFFORT_FILE_NAME)
-VALID_EFFORT_DATA := $(filter-out $(EFFORT_TO_EXCLUDE), $(ALL_EFFORT_DATA))
+VALID_EFFORT_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(EFFORT_FILE_NAME))
 
 # List of the valid position data files
-ALL_POSITION_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(POSITION_FILE_NAME))
-POSITION_TO_EXCLUDE := $(TEST_DATA_FOLDER)/test_1/$(POSITION_FILE_NAME) $(TEST_DATA_FOLDER)/test_2/$(POSITION_FILE_NAME) $(TEST_DATA_FOLDER)/test_3/$(POSITION_FILE_NAME)
-VALID_POSITION_DATA := $(filter-out $(POSITION_TO_EXCLUDE), $(ALL_POSITION_DATA))
+VALID_POSITION_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(POSITION_FILE_NAME))
 
 # Path to the folders containing the data computed from the experimental data
 COMPUTED_DATA_FOLDER := computed_data
@@ -55,15 +54,15 @@ TANGENT_MODULI_EXE_FILE := $(PYTHON_FOLDER)/processing/tangent_moduli.py
 RESULTS_EXE_FILE := $(PYTHON_FOLDER)/processing/results.py
 
 # Executables for processing the data
-SMOOTH_EXE := python -m $(PYTHON_FOLDER).processing.smooth
-BEGIN_EXE := python -m $(PYTHON_FOLDER).processing.begin
-END_EXE := python -m $(PYTHON_FOLDER).processing.end
-TRIM_EXE := python -m $(PYTHON_FOLDER).processing.trim
-STRESS_STRAIN_EXE := python -m $(PYTHON_FOLDER).processing.stress_strain
-YEOH_EXE := python -m $(PYTHON_FOLDER).processing.yeoh
-MAXIMUM_POINT_EXE := python -m $(PYTHON_FOLDER).processing.maximum_point
-TANGENT_MODULI_EXE := python -m $(PYTHON_FOLDER).processing.tangent_moduli
-RESULTS_EXE := python -m $(PYTHON_FOLDER).processing.results
+SMOOTH_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.smooth
+BEGIN_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.begin
+END_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.end
+TRIM_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.trim
+STRESS_STRAIN_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.stress_strain
+YEOH_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.yeoh
+MAXIMUM_POINT_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.maximum_point
+TANGENT_MODULI_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.tangent_moduli
+RESULTS_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.results
 
 # Paths to the Python scripts to execute for plotting data
 SAVE_CURVE_EXE_FILE := $(PYTHON_FOLDER)/plotting/save_curve.py

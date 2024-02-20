@@ -6,6 +6,7 @@ the Yeoh coefficients, and saves the coefficients at the provided location."""
 import argparse
 import pandas as pd
 from scipy.optimize import curve_fit
+from typing import Optional
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.yeoh_model import yeoh_2
@@ -34,8 +35,7 @@ if __name__ == '__main__':
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
   # Creating the dataframe to save
-  to_write = pd.DataFrame(columns=[identifier_field, yeoh_0_field,
-                                   yeoh_1_field])
+  to_write: Optional[pd.DataFrame] = None
 
   # Iterating over the source files
   for path in source_files:
@@ -48,9 +48,15 @@ if __name__ == '__main__':
                         data[stress_field].values)
 
     # Adding the values to the dataframe to save
-    to_write = pd.concat((to_write, pd.DataFrame({identifier_field: [test_nr],
-                                                  yeoh_0_field: [fit[0]],
-                                                  yeoh_1_field: [fit[1]]})))
+    if to_write is None:
+      to_write = pd.DataFrame({identifier_field: [test_nr],
+                               yeoh_0_field: [fit[0]],
+                               yeoh_1_field: [fit[1]]})
+    else:
+      to_write = pd.concat((to_write, pd.DataFrame(
+        {identifier_field: [test_nr],
+         yeoh_0_field: [fit[0]],
+         yeoh_1_field: [fit[1]]})))
 
   # Saving the values to the destination file
   to_write.to_csv(destination, index=False)

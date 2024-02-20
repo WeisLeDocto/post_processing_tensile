@@ -11,8 +11,7 @@ import pandas as pd
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, initial_length_field, \
   height_offset_field, height_field, width_offset_field, width_field, \
-  extension_field, stress_field, time_field, position_1_field, \
-  position_2_field
+  extension_field, stress_field, time_field, position_field
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -52,30 +51,32 @@ if __name__ == '__main__':
   notes = notes[notes[identifier_field] == test_nr]
 
   # Calculating the extension from the position and the initial distance
-  position['Total'] = position[position_1_field] + position[position_2_field]
+  position['Total'] = position[position_field]
   position_interp = np.stack((effort[time_field].values,
                               np.interp(effort[time_field].values,
                                         position[time_field].values,
                                         position['Total'].values)), axis=1)
-  init_length = float(notes[initial_length_field])
+  init_length = float(notes[initial_length_field].iloc[0])
   position_interp[:, 1] += init_length - position_interp[0, 1]
   lambda_ = position_interp / [1, position_interp[0, 1]]
 
   # Getting the thickness of the sample
   if height_offset_field is not None:
-    height = float(notes[height_field]) - float(notes[height_offset_field])
+    height = (float(notes[height_field].iloc[0]) -
+              float(notes[height_offset_field].iloc[0]))
   else:
-    height = float(notes[height_field])
+    height = float(notes[height_field].iloc[0])
 
   # Getting the width of the sample
   if width_offset_field is not None:
-    width = float(notes[width_field]) - float(notes[width_offset_field])
+    width = (float(notes[width_field].iloc[0]) -
+             float(notes[width_offset_field].iloc[0]))
   else:
-    width = float(notes[width_field])
+    width = float(notes[width_field].iloc[0])
 
   # Calculating the stress from the effort and the section
   stress = effort.values / [1, width / 1000 * height / 1000]
-  stress[:, 1] -= stress[0, 1]
+  stress[:, 1] -= np.mean(stress[:200, 1])
   stress[:, 1] /= 1000
 
   # Saving the data to the destination file

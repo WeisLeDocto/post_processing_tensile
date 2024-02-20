@@ -6,6 +6,7 @@ the provided location."""
 
 import argparse
 import pandas as pd
+from typing import Optional
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, extensibility_field, \
@@ -33,8 +34,7 @@ if __name__ == '__main__':
   source_files = sorted(source_files, key=get_nr)
 
   # Creating the dataframe to save
-  to_write = pd.DataFrame(columns=[identifier_field, extensibility_field,
-                                   ultimate_strength_field])
+  to_write: Optional[pd.DataFrame] = None
 
   # Iterating over the source files
   for path in source_files:
@@ -48,9 +48,14 @@ if __name__ == '__main__':
     extensibility = data[extension_field].iloc[index_max]
 
     # Adding the values to the dataframe to save
-    to_write = pd.concat((to_write, pd.DataFrame(
-      {identifier_field: [test_nr], extensibility_field: [extensibility],
-       ultimate_strength_field: [ultimate_strength]})))
+    if to_write is None:
+      to_write = pd.DataFrame(
+        {identifier_field: [test_nr], extensibility_field: [extensibility],
+         ultimate_strength_field: [ultimate_strength]})
+    else:
+      to_write = pd.concat((to_write, pd.DataFrame(
+        {identifier_field: [test_nr], extensibility_field: [extensibility],
+         ultimate_strength_field: [ultimate_strength]})))
 
   # Saving the values to the destination file
   to_write.to_csv(destination, index=False)

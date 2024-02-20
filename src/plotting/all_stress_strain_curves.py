@@ -7,6 +7,7 @@ read from the notes file."""
 import argparse
 from matplotlib import pyplot as plt
 import pandas as pd
+from itertools import cycle
 
 from ..tools.argparse_checkers import checker_is_tiff, checker_valid_csv
 from ..tools.fields import identifier_field, type_field, condition_field, \
@@ -43,7 +44,7 @@ if __name__ == '__main__':
   fig = plt.figure()
   ax = plt.subplot()
   prop_cycle = plt.rcParams['axes.prop_cycle']
-  colors = iter(prop_cycle.by_key()['color'])
+  colors = cycle(iter(prop_cycle.by_key()['color']))
 
   color_by_label = dict()
   for path in source_files:
@@ -68,7 +69,9 @@ if __name__ == '__main__':
             label=label, color=color)
 
   # Setting the axes labels and the title
-  ax.set_title('All stress-strain curves')
+  ax.set_title(f'All stress-strain curves\n'
+               f'{notes_file.parent.parent.parent.name} '
+               f'{notes_file.parent.parent.name}')
   ax.set_xlabel(extension_field)
   ax.set_ylabel(stress_field)
 
