@@ -59,6 +59,7 @@ if __name__ == '__main__':
     # Determining the beginning point of the valid data
     begin = data[extension_field][data[stress_field] >
                                   threshold * max_stress].min()
+
     # Adding the values to the dataframe to save
     to_write = pd.concat((to_write, pd.DataFrame({identifier_field: [test_nr],
                                                   begin_field: [begin]})))
