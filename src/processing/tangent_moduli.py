@@ -68,7 +68,7 @@ if __name__ == '__main__':
     young, *_ = np.linalg.lstsq(
       (data_young[extension_field].values - 1)[:, np.newaxis],
       data_young[stress_field].values[:, np.newaxis], rcond=None)
-    young = float(young)
+    young = float(np.squeeze(young))
 
     # Calculating the hyperelastic modulus
     hyperelastic_fit = Polynomial.fit(data_hyper[extension_field].values,
