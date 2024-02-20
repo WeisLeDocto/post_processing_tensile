@@ -47,9 +47,9 @@ if __name__ == '__main__':
 
   # Reading the beginning and end extensions from the data files
   begin = pd.read_csv(begin_file)
-  begin = float(begin[begin_field][begin[identifier_field] == test_nr])
+  begin = float(begin[begin_field][begin[identifier_field] == test_nr].iloc[0])
   end = pd.read_csv(end_file)
-  end = float(end[end_field][end[identifier_field] == test_nr])
+  end = float(end[end_field][end[identifier_field] == test_nr].iloc[0])
 
   # Keeping only the valid data and offsetting the extension and the stress
   valid = data[(data[extension_field] >= begin) &

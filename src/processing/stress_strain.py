@@ -56,21 +56,23 @@ if __name__ == '__main__':
                               np.interp(effort[time_field].values,
                                         position[time_field].values,
                                         position['Total'].values)), axis=1)
-  init_length = float(notes[initial_length_field])
+  init_length = float(notes[initial_length_field].iloc[0])
   position_interp[:, 1] += init_length - position_interp[0, 1]
   lambda_ = position_interp / [1, position_interp[0, 1]]
 
   # Getting the thickness of the sample
   if height_offset_field is not None:
-    height = float(notes[height_field]) - float(notes[height_offset_field])
+    height = (float(notes[height_field].iloc[0]) -
+              float(notes[height_offset_field].iloc[0]))
   else:
-    height = float(notes[height_field])
+    height = float(notes[height_field].iloc[0])
 
   # Getting the width of the sample
   if width_offset_field is not None:
-    width = float(notes[width_field]) - float(notes[width_offset_field])
+    width = (float(notes[width_field].iloc[0]) -
+             float(notes[width_offset_field].iloc[0]))
   else:
-    width = float(notes[width_field])
+    width = float(notes[width_field].iloc[0])
 
   # Calculating the stress from the effort and the section
   stress = effort.values / [1, width / 1000 * height / 1000]

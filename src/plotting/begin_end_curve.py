@@ -47,9 +47,10 @@ if __name__ == '__main__':
 
   # Extracting the beginning and end timestamps
   begins = pd.read_csv(begin_file)
-  begin = float(begins[begin_field][begins[identifier_field] == test_nr])
+  begin = float(begins[begin_field]
+                [begins[identifier_field] == test_nr].iloc[0])
   ends = pd.read_csv(end_file)
-  end = float(ends[end_field][ends[identifier_field] == test_nr])
+  end = float(ends[end_field][ends[identifier_field] == test_nr].iloc[0])
 
   # Dividing data into three categories
   before = data[data[extension_field] < begin]
