@@ -8,6 +8,7 @@ import argparse
 import numpy as np
 import pandas as pd
 from numpy.polynomial.polynomial import Polynomial
+from typing import Optional
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, young_modulus_field, \
@@ -46,9 +47,7 @@ if __name__ == '__main__':
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
   # Creating the dataframe to save
-  to_write = pd.DataFrame(
-    columns=[identifier_field, young_modulus_field, hyperelastic_offset_field,
-             hyperelastic_modulus_field])
+  to_write : Optional[pd.DataFrame] = None
 
   # Iterating over the source files
   for path in source_files:
@@ -78,10 +77,16 @@ if __name__ == '__main__':
     offset = hyperelastic_fit.convert().coef[0]
 
     # Adding the values to the dataframe to save
-    to_write = pd.concat((to_write, pd.DataFrame(
-      {identifier_field: [test_nr], young_modulus_field: [young],
-       hyperelastic_offset_field: [offset],
-       hyperelastic_modulus_field: [hyperelastic]})))
+    if to_write is None:
+      to_write = pd.DataFrame(
+        {identifier_field: [test_nr], young_modulus_field: [young],
+         hyperelastic_offset_field: [offset],
+         hyperelastic_modulus_field: [hyperelastic]})
+    else:
+      to_write = pd.concat((to_write, pd.DataFrame(
+        {identifier_field: [test_nr], young_modulus_field: [young],
+         hyperelastic_offset_field: [offset],
+         hyperelastic_modulus_field: [hyperelastic]})))
 
   # Saving the values to the destination file
   to_write.to_csv(destination, index=False)
