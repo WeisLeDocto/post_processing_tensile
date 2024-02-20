@@ -8,6 +8,7 @@ NUMBER_POINTS_SMOOTH_FILE := $(PARAMETERS_FOLDER)/nb_pts_smooth.mk
 NUMBER_POINTS_BEGIN_END_FILE := $(PARAMETERS_FOLDER)/nb_pts_begin_end.mk
 STRESS_THRESHOLD_FILE := $(PARAMETERS_FOLDER)/stress_thresh.mk
 MODULI_RANGES_FILE := $(PARAMETERS_FOLDER)/moduli_ranges.mk
+DROP_THRESHOLD_FILE := $(PARAMETERS_FOLDER)/drop_thresh.mk
 
 # Including the .mk files
 include $(NAMES_FILE)
@@ -15,6 +16,7 @@ include $(NUMBER_POINTS_SMOOTH_FILE)
 include $(NUMBER_POINTS_BEGIN_END_FILE)
 include $(STRESS_THRESHOLD_FILE)
 include $(MODULI_RANGES_FILE)
+include $(DROP_THRESHOLD_FILE)
 
 .PHONY : help
 help: ## Displays this help documentation
@@ -75,10 +77,10 @@ $(BEGIN_FILE): $(BEGIN_EXE_FILE) $(MAXIMUM_POINTS_FILE) $(STRESS_STRAIN_FILES) $
 .PHONY: end
 end: $(END_FILE) ## Detects the end extension of the valid stress-strain data for each test, and saves it to a .csv file
 
-$(END_FILE): $(END_EXE_FILE) $(BEGIN_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(STRESS_STRAIN_FILES)
+$(END_FILE): $(END_EXE_FILE) $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE) $(STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $@"
-	@$(END_EXE) $(abspath $@) $(NB_POINTS_SMOOTH_END) $(abspath $(filter-out $< $(NUMBER_POINTS_BEGIN_END_FILE), $^))
+	@$(END_EXE) $(abspath $@) $(NB_POINTS_SMOOTH_END) $(DROP_THRESHOLD) $(DROP_RANGE) $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(abspath $(filter-out $< $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE), $^))
 
 .PHONY: trim
 trim: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, and saves only the valid part of it to a .csv file for each test
