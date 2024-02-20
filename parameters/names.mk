@@ -1,5 +1,8 @@
 # This file contains all the variables holding the folder and file names
 
+# Path to the Python interpreter to use
+PYTHON_EXE := python
+
 # Path to the experimental data files
 TEST_DATA_FOLDER := test_data
 NOTES_FILE := $(TEST_DATA_FOLDER)/notes.csv
@@ -51,15 +54,15 @@ TANGENT_MODULI_EXE_FILE := $(PYTHON_FOLDER)/processing/tangent_moduli.py
 RESULTS_EXE_FILE := $(PYTHON_FOLDER)/processing/results.py
 
 # Executables for processing the data
-SMOOTH_EXE := python -m $(PYTHON_FOLDER).processing.smooth
-BEGIN_EXE := python -m $(PYTHON_FOLDER).processing.begin
-END_EXE := python -m $(PYTHON_FOLDER).processing.end
-TRIM_EXE := python -m $(PYTHON_FOLDER).processing.trim
-STRESS_STRAIN_EXE := python -m $(PYTHON_FOLDER).processing.stress_strain
-YEOH_EXE := python -m $(PYTHON_FOLDER).processing.yeoh
-MAXIMUM_POINT_EXE := python -m $(PYTHON_FOLDER).processing.maximum_point
-TANGENT_MODULI_EXE := python -m $(PYTHON_FOLDER).processing.tangent_moduli
-RESULTS_EXE := python -m $(PYTHON_FOLDER).processing.results
+SMOOTH_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.smooth
+BEGIN_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.begin
+END_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.end
+TRIM_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.trim
+STRESS_STRAIN_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.stress_strain
+YEOH_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.yeoh
+MAXIMUM_POINT_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.maximum_point
+TANGENT_MODULI_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.tangent_moduli
+RESULTS_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.results
 
 # Paths to the Python scripts to execute for plotting data
 SAVE_CURVE_EXE_FILE := $(PYTHON_FOLDER)/plotting/save_curve.py
