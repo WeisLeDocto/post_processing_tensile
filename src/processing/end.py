@@ -64,9 +64,8 @@ if __name__ == '__main__':
 
     # Retrieving the first point where the second derivative cancels and the
     # first derivative is zero
-    filtered = savgol_filter(data[stress_field].values, nb_points, 3, deriv=2)
-    cancel = np.diff(np.sign(filtered))
-    end = data[extension_field].values[np.argmin(cancel)]
+    filtered = savgol_filter(data[stress_field].values, nb_points, 3, deriv=1)
+    end = data[extension_field].values[np.argmax(filtered)]
 
     # Adding the values to the dataframe to save
     to_write = pd.concat((to_write, pd.DataFrame({identifier_field: [test_nr],
