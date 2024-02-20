@@ -9,14 +9,10 @@ EFFORT_FILE_NAME := effort.csv
 POSITION_FILE_NAME := position.csv
 
 # List of the valid effort data files
-ALL_EFFORT_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(EFFORT_FILE_NAME))
-EFFORT_TO_EXCLUDE := $(TEST_DATA_FOLDER)/test_1/$(EFFORT_FILE_NAME) $(TEST_DATA_FOLDER)/test_2/$(EFFORT_FILE_NAME) $(TEST_DATA_FOLDER)/test_3/$(EFFORT_FILE_NAME)
-VALID_EFFORT_DATA := $(filter-out $(EFFORT_TO_EXCLUDE), $(ALL_EFFORT_DATA))
+VALID_EFFORT_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(EFFORT_FILE_NAME))
 
 # List of the valid position data files
-ALL_POSITION_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(POSITION_FILE_NAME))
-POSITION_TO_EXCLUDE := $(TEST_DATA_FOLDER)/test_1/$(POSITION_FILE_NAME) $(TEST_DATA_FOLDER)/test_2/$(POSITION_FILE_NAME) $(TEST_DATA_FOLDER)/test_3/$(POSITION_FILE_NAME)
-VALID_POSITION_DATA := $(filter-out $(POSITION_TO_EXCLUDE), $(ALL_POSITION_DATA))
+VALID_POSITION_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(POSITION_FILE_NAME))
 
 # Path to the folders containing the data computed from the experimental data
 COMPUTED_DATA_FOLDER := computed_data
