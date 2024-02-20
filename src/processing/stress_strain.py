@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
   # Calculating the stress from the effort and the section
   stress = effort.values / [1, width / 1000 * height / 1000]
-  stress[:, 1] -= stress[0, 1]
+  stress[:, 1] -= np.mean(stress[:200, 1])
   stress[:, 1] /= 1000
 
   # Saving the data to the destination file
