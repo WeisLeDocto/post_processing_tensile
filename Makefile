@@ -3,7 +3,8 @@
 
 # Paths to the .mk files containing the parameters to use for processing the data
 PARAMETERS_FOLDER := parameters
-NAMES_FILE := $(abspath $(PARAMETERS_FOLDER)/names.mk)
+DATA_NAMES_FILE := $(abspath $(PARAMETERS_FOLDER)/data_files_names.mk)
+EXE_NAMES_FILE := $(abspath $(PARAMETERS_FOLDER)/exe_files_names.mk)
 NUMBER_POINTS_SMOOTH_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth.mk)
 NUMBER_POINTS_BEGIN_END_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth_end.mk)
 STRESS_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/stress_thresh.mk)
@@ -11,7 +12,8 @@ MODULI_RANGES_FILE := $(abspath $(PARAMETERS_FOLDER)/moduli_ranges.mk)
 DROP_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/drop_thresh.mk)
 
 # Including the .mk files
-include $(NAMES_FILE)
+include $(DATA_NAMES_FILE)
+include $(EXE_NAMES_FILE)
 include $(NUMBER_POINTS_SMOOTH_FILE)
 include $(NUMBER_POINTS_BEGIN_END_FILE)
 include $(STRESS_THRESHOLD_FILE)
