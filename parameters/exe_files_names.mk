@@ -39,8 +39,8 @@ INTERPOLATED_CURVE_EXE_FILE := $(abspath $(PYTHON_FOLDER)/plotting/interpolated_
 TANGENT_MODULI_CURVE_EXE_FILE := $(abspath $(PYTHON_FOLDER)/plotting/moduli_curve.py)
 
 # Paths to the Python scripts to execute for plotting data
-SAVE_CURVE_EXE := python -m $(PYTHON_MODULE).plotting.save_curve
-BEGIN_END_CURVE_EXE := python -m $(PYTHON_MODULE).plotting.begin_end_curve
-ALL_STRESS_STRAIN_EXE := python -m $(PYTHON_MODULE).plotting.all_stress_strain_curves
-INTERPOLATED_CURVE_EXE := python -m $(PYTHON_MODULE).plotting.interpolated_curve
-TANGENT_MODULI_CURVE_EXE := python -m $(PYTHON_MODULE).plotting.moduli_curve
+SAVE_CURVE_EXE := $(PYTHON_EXE) -m $(PYTHON_MODULE).plotting.save_curve
+BEGIN_END_CURVE_EXE := $(PYTHON_EXE) -m $(PYTHON_MODULE).plotting.begin_end_curve
+ALL_STRESS_STRAIN_EXE := $(PYTHON_EXE) -m $(PYTHON_MODULE).plotting.all_stress_strain_curves
+INTERPOLATED_CURVE_EXE := $(PYTHON_EXE) -m $(PYTHON_MODULE).plotting.interpolated_curve
+TANGENT_MODULI_CURVE_EXE := $(PYTHON_EXE) -m $(PYTHON_MODULE).plotting.moduli_curve
