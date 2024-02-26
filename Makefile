@@ -18,12 +18,14 @@ endif
 # Including the .mk files
 include $(DATA_NAMES_FILE)
 # The following ones are imported from parent if MAKELEVEL is not 0
-include $(EXE_NAMES_FILE)
-include $(NUMBER_POINTS_SMOOTH_FILE)
-include $(NUMBER_POINTS_BEGIN_END_FILE)
-include $(STRESS_THRESHOLD_FILE)
-include $(MODULI_RANGES_FILE)
-include $(DROP_THRESHOLD_FILE)
+ifeq ($(MAKELEVEL),0)
+	include $(EXE_NAMES_FILE)
+	include $(NUMBER_POINTS_SMOOTH_FILE)
+	include $(NUMBER_POINTS_BEGIN_END_FILE)
+	include $(STRESS_THRESHOLD_FILE)
+	include $(MODULI_RANGES_FILE)
+	include $(DROP_THRESHOLD_FILE)
+endif
 
 # Calling Makefiles recursively in the target directory only if the TARGET_DIRECTORY variable is set by the user
 # Otherwise, applying the recipes to the current directory
