@@ -4,15 +4,20 @@
 # Paths to the .mk files containing the parameters to use for processing the data
 PARAMETERS_FOLDER := parameters
 DATA_NAMES_FILE := $(abspath $(PARAMETERS_FOLDER)/data_files_names.mk)
-EXE_NAMES_FILE := $(abspath $(PARAMETERS_FOLDER)/exe_files_names.mk)
-NUMBER_POINTS_SMOOTH_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth.mk)
-NUMBER_POINTS_BEGIN_END_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth_end.mk)
-STRESS_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/stress_thresh.mk)
-MODULI_RANGES_FILE := $(abspath $(PARAMETERS_FOLDER)/moduli_ranges.mk)
-DROP_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/drop_thresh.mk)
+# The following names are only defined by the parent of level 0, never by the children
+# They are exported for the children to include
+ifeq ($(MAKELEVEL),0)
+	export EXE_NAMES_FILE := $(abspath $(PARAMETERS_FOLDER)/exe_files_names.mk)
+	export NUMBER_POINTS_SMOOTH_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth.mk)
+	export NUMBER_POINTS_BEGIN_END_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth_end.mk)
+	export STRESS_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/stress_thresh.mk)
+	export MODULI_RANGES_FILE := $(abspath $(PARAMETERS_FOLDER)/moduli_ranges.mk)
+	export DROP_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/drop_thresh.mk)
+endif
 
 # Including the .mk files
 include $(DATA_NAMES_FILE)
+# The following ones are imported from parent if MAKELEVEL is not 0
 include $(EXE_NAMES_FILE)
 include $(NUMBER_POINTS_SMOOTH_FILE)
 include $(NUMBER_POINTS_BEGIN_END_FILE)
@@ -20,6 +25,22 @@ include $(STRESS_THRESHOLD_FILE)
 include $(MODULI_RANGES_FILE)
 include $(DROP_THRESHOLD_FILE)
 
+# Calling Makefiles recursively in the target directory only if the TARGET_DIRECTORY variable is set by the user
+# Otherwise, applying the recipes to the current directory
+ifeq ($(MAKELEVEL),0)
+	ifdef TARGET_DIRECTORY
+		RECURSIVE := true
+		DATA_DIRECTORIES := $(dir $(abspath $(wildcard $(TARGET_DIRECTORY)*/*/Makefile)))
+	else
+		RECURSIVE := false
+		DATA_DIRECTORIES := ./
+	endif
+else
+	RECURSIVE := false
+	DATA_DIRECTORIES := ./
+endif
+
+# The first three recipes are common to the RECURSIVE and non-RECURSIVE usage modes
 .PHONY : help
 help: ## Displays this help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -27,11 +48,26 @@ help: ## Displays this help documentation
 .PHONY: all
 all: results plots ## Computes the results and plots the data
 
-.PHONY: results
-results: $(RESULTS_FILE) ## Assembles all the intermediate .csv results files into one final .csv result file
-
 .PHONY: plots
 plots: raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots ## Plots curves from the intermediate data files to visualize the data
+
+ifeq ($(RECURSIVE),true)
+# Recipes used when running this Makefile at top level and specifying a TARGET_DIRECTORY variable
+# No local results are computed, only calls to sub-Makefiles are issued
+
+# Smart way to call the targets in the sub-Makefiles without explicitly naling them
+$(DATA_DIRECTORIES)::
+	@$(MAKE) -C $@ $(MAKECMDGOALS)
+
+.PHONY: results clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
+results clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
+
+else
+# Recipes used when running this Makefile at top level without specifying a TARGET_DIRECTORY variable, or running it as a sub-Makefile
+# Only local results are computed, no sub-Makefile is ever called
+
+.PHONY: results
+results: $(RESULTS_FILE) ## Assembles all the intermediate .csv results files into one final .csv result file
 
 .PHONY: clean
 clean: ## Deletes all the results and plots files
@@ -180,3 +216,5 @@ $(TANGENT_MODULI_CURVES_FOLDER)/%.tiff: $(TANGENT_MODULI_CURVE_EXE_FILE) $(MODUL
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(TANGENT_MODULI_CURVE_EXE) $(abspath $@) $(YOUNG_RANGE) $(HYPERELASTIC_RANGE) $(abspath $(filter-out $< $(MODULI_RANGES_FILE), $^))
+
+endif
