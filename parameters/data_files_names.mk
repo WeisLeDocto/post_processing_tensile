@@ -1,7 +1,4 @@
-# This file contains all the variables holding the folder and file names
-
-# Path to the Python interpreter to use
-PYTHON_EXE := python
+# This file contains all the variables holding the data folder and file names
 
 # Path to the experimental data files
 TEST_DATA_FOLDER := test_data
@@ -39,44 +36,6 @@ END_FILE := $(COMPUTED_DATA_FOLDER)/end.csv
 YEOH_INTERPOLATION_FILE := $(COMPUTED_DATA_FOLDER)/yeoh_interpolation.csv
 MAXIMUM_POINTS_FILE := $(COMPUTED_DATA_FOLDER)/max_point.csv
 TANGENT_MODULI_FILE := $(COMPUTED_DATA_FOLDER)/tangent_moduli.csv
-
-PYTHON_FOLDER := src
-
-# Paths to the Python scripts to execute for processing data
-SMOOTH_EXE_FILE := $(PYTHON_FOLDER)/processing/smooth.py
-BEGIN_EXE_FILE := $(PYTHON_FOLDER)/processing/begin.py
-END_EXE_FILE := $(PYTHON_FOLDER)/processing/end.py
-TRIM_EXE_FILE := $(PYTHON_FOLDER)/processing/trim.py
-STRESS_STRAIN_EXE_FILE := $(PYTHON_FOLDER)/processing/stress_strain.py
-YEOH_EXE_FILE := $(PYTHON_FOLDER)/processing/yeoh.py
-MAXIMUM_POINT_EXE_FILE := $(PYTHON_FOLDER)/processing/maximum_point.py
-TANGENT_MODULI_EXE_FILE := $(PYTHON_FOLDER)/processing/tangent_moduli.py
-RESULTS_EXE_FILE := $(PYTHON_FOLDER)/processing/results.py
-
-# Executables for processing the data
-SMOOTH_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.smooth
-BEGIN_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.begin
-END_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.end
-TRIM_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.trim
-STRESS_STRAIN_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.stress_strain
-YEOH_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.yeoh
-MAXIMUM_POINT_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.maximum_point
-TANGENT_MODULI_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.tangent_moduli
-RESULTS_EXE := $(PYTHON_EXE) -m $(PYTHON_FOLDER).processing.results
-
-# Paths to the Python scripts to execute for plotting data
-SAVE_CURVE_EXE_FILE := $(PYTHON_FOLDER)/plotting/save_curve.py
-BEGIN_END_CURVE_EXE_FILE := $(PYTHON_FOLDER)/plotting/begin_end_curve.py
-ALL_STRESS_STRAIN_EXE_FILE := $(PYTHON_FOLDER)/plotting/all_stress_strain_curves.py
-INTERPOLATED_CURVE_EXE_FILE := $(PYTHON_FOLDER)/plotting/interpolated_curve.py
-TANGENT_MODULI_CURVE_EXE_FILE := $(PYTHON_FOLDER)/plotting/moduli_curve.py
-
-# Paths to the Python scripts to execute for plotting data
-SAVE_CURVE_EXE := python -m $(PYTHON_FOLDER).plotting.save_curve
-BEGIN_END_CURVE_EXE := python -m $(PYTHON_FOLDER).plotting.begin_end_curve
-ALL_STRESS_STRAIN_EXE := python -m $(PYTHON_FOLDER).plotting.all_stress_strain_curves
-INTERPOLATED_CURVE_EXE := python -m $(PYTHON_FOLDER).plotting.interpolated_curve
-TANGENT_MODULI_CURVE_EXE := python -m $(PYTHON_FOLDER).plotting.moduli_curve
 
 # The folder containing all the plots
 PLOTS_FOLDER := plots
