@@ -43,13 +43,13 @@ smooth: $(SMOOTH_EFFORT_FILES) $(SMOOTH_POSITION_FILES) ## Smoothens the raw dat
 # Smoothens the raw effort data and saves the smoothed data to a .csv file for each test
 $(SMOOTH_DATA_FOLDER)/%/$(EFFORT_FILE_NAME): $(SMOOTH_EXE_FILE) $(NUMBER_POINTS_SMOOTH_FILE) $(addprefix $(TEST_DATA_FOLDER)/, %/$(EFFORT_FILE_NAME))
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(SMOOTH_EXE) $(abspath $(filter-out $< $(NUMBER_POINTS_SMOOTH_FILE), $^)) $(abspath $@) $(NB_POINTS_SMOOTH)
 
 # Simply copies the position data to the smoothed data folder, as the position data is already smooth
 $(SMOOTH_DATA_FOLDER)/%/$(POSITION_FILE_NAME): $(addprefix $(TEST_DATA_FOLDER)/, %/$(POSITION_FILE_NAME))
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@cp $< $@
 
 .PHONY: stress_strain
@@ -57,7 +57,7 @@ stress_strain: $(STRESS_STRAIN_FILES) ## Computes the stress and the strain from
 
 $(STRESS_STRAIN_DATA_FOLDER)/%.csv: $(STRESS_STRAIN_EXE_FILE) $(addprefix $(SMOOTH_DATA_FOLDER)/, %/$(POSITION_FILE_NAME)) $(addprefix $(SMOOTH_DATA_FOLDER)/, %/$(EFFORT_FILE_NAME)) $(NOTES_FILE)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(STRESS_STRAIN_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 .PHONY: max_points
@@ -65,7 +65,7 @@ max_points: $(MAXIMUM_POINTS_FILE) ## Detects the ultimate strength and the exte
 
 $(MAXIMUM_POINTS_FILE): $(MAXIMUM_POINT_EXE_FILE) $(STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(MAXIMUM_POINT_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: begin
@@ -73,7 +73,7 @@ begin: $(BEGIN_FILE) ## Detects the begin extension of the valid stress-strain d
 
 $(BEGIN_FILE): $(BEGIN_EXE_FILE) $(MAXIMUM_POINTS_FILE) $(STRESS_STRAIN_FILES) $(STRESS_THRESHOLD_FILE)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(BEGIN_EXE) $(abspath $@) $(STRESS_THRESHOLD) $(abspath $(filter-out $< $(STRESS_THRESHOLD_FILE), $^))
 
 .PHONY: end
@@ -81,7 +81,7 @@ end: $(END_FILE) ## Detects the end extension of the valid stress-strain data fo
 
 $(END_FILE): $(END_EXE_FILE) $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE) $(STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(END_EXE) $(abspath $@) $(NB_POINTS_SMOOTH_END) $(DROP_THRESHOLD) $(DROP_RANGE) $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(abspath $(filter-out $< $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE), $^))
 
 .PHONY: trim
@@ -89,7 +89,7 @@ trim: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input
 
 $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE) $(END_FILE)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(TRIM_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: yeoh_interpolation
@@ -97,7 +97,7 @@ yeoh_interpolation: $(YEOH_INTERPOLATION_FILE) ## Fits a second-order Yeoh model
 
 $(YEOH_INTERPOLATION_FILE): $(YEOH_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(YEOH_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: tangent_moduli
@@ -105,12 +105,12 @@ tangent_moduli: $(TANGENT_MODULI_FILE) ## Calculates the tangent moduli at both 
 
 $(TANGENT_MODULI_FILE): $(TANGENT_MODULI_EXE_FILE) $(MODULI_RANGES_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(TANGENT_MODULI_EXE) $(abspath $@) $(YOUNG_RANGE) $(HYPERELASTIC_RANGE) $(abspath $(filter-out $< $(MODULI_RANGES_FILE), $^))
 
 $(RESULTS_FILE): $(RESULTS_EXE_FILE) $(NOTES_FILE) $(BEGIN_FILE) $(END_FILE) $(MAXIMUM_POINTS_FILE) $(YEOH_INTERPOLATION_FILE) $(TANGENT_MODULI_FILE)
 	@mkdir -p $(@D)
-	@echo "Writing $@"
+	@echo "Writing $(abspath $@)"
 	@$(RESULTS_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 .PHONY: raw_plots
@@ -118,12 +118,12 @@ raw_plots: $(RAW_PLOTS_EFFORT_FILES) $(RAW_PLOTS_POSITION_FILES) ## Plots the ra
 
 $(RAW_PLOTS_EFFORT_FOLDER)/%.tiff: $(SAVE_CURVE_EXE_FILE) $(addprefix $(TEST_DATA_FOLDER)/, %/$(EFFORT_FILE_NAME))
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(SAVE_CURVE_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 $(RAW_PLOTS_POSITION_FOLDER)/%.tiff: $(SAVE_CURVE_EXE_FILE) $(addprefix $(TEST_DATA_FOLDER)/, %/$(POSITION_FILE_NAME))
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(SAVE_CURVE_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 .PHONY: smooth_plots
@@ -131,12 +131,12 @@ smooth_plots: $(SMOOTH_PLOTS_EFFORT_FILES) $(SMOOTH_PLOTS_POSITION_FILES) ## Plo
 
 $(SMOOTH_PLOTS_EFFORT_FOLDER)/%.tiff: $(SAVE_CURVE_EXE_FILE) $(addprefix $(SMOOTH_DATA_FOLDER)/, %/$(EFFORT_FILE_NAME))
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(SAVE_CURVE_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 $(SMOOTH_PLOTS_POSITION_FOLDER)/%.tiff: $(SAVE_CURVE_EXE_FILE) $(addprefix $(SMOOTH_DATA_FOLDER)/, %/$(POSITION_FILE_NAME))
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(SAVE_CURVE_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 .PHONY: begin_end_plots
@@ -144,7 +144,7 @@ begin_end_plots: $(BEGIN_END_PLOTS_FILES) ## Plots the stress_strain data in .ti
 
 $(BEGIN_END_PLOTS_FOLDER)/%.tiff: $(BEGIN_END_CURVE_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE) $(END_FILE)
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(BEGIN_END_CURVE_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: stress_strain_plots
@@ -152,17 +152,17 @@ stress_strain_plots: $(STRESS_STRAIN_PLOTS_FILES) $(ALL_STRESS_STRAIN_CURVES) $(
 
 $(STRESS_STRAIN_PLOTS_FOLDER)/%.tiff: $(SAVE_CURVE_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(SAVE_CURVE_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 $(ALL_STRESS_STRAIN_CURVES): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(ALL_STRESS_STRAIN_EXE) $(abspath $(word 2,$^)) $(abspath $@) $(abspath $(filter-out $< $(NOTES_FILE), $^))
 
 $(ALL_STRESS_STRAIN_CURVES_TRIMMED): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(ALL_STRESS_STRAIN_EXE) $(abspath $(word 2,$^)) $(abspath $@) $(abspath $(filter-out $< $(NOTES_FILE), $^))
 
 .PHONY: yeoh_interpolation_plots
@@ -170,7 +170,7 @@ yeoh_interpolation_plots: $(INTERPOLATION_PLOTS_FILES) ## Plots the valid stress
 
 $(INTERPOLATION_CURVES_FOLDER)/%.tiff: $(INTERPOLATED_CURVE_EXE_FILE) $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(YEOH_INTERPOLATION_FILE)
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(INTERPOLATED_CURVE_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: tangent_moduli_plots
@@ -178,5 +178,5 @@ tangent_moduli_plots: $(TANGENT_MODULI_PLOTS_FILES) ## Plots the valid stress-st
 
 $(TANGENT_MODULI_CURVES_FOLDER)/%.tiff: $(TANGENT_MODULI_CURVE_EXE_FILE) $(MODULI_RANGES_FILE) $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(TANGENT_MODULI_FILE)
 	@mkdir -p $(@D)
-	@echo "Plotting $@"
+	@echo "Writing $(abspath $@)"
 	@$(TANGENT_MODULI_CURVE_EXE) $(abspath $@) $(YOUNG_RANGE) $(HYPERELASTIC_RANGE) $(abspath $(filter-out $< $(MODULI_RANGES_FILE), $^))
