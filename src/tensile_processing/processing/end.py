@@ -114,8 +114,8 @@ if __name__ == '__main__':
     filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
                              deriv=2)
     cancel = np.diff(np.sign(filtered))
-    if np.any(cancel):
-      end = data[extension_field].values[np.argmin(cancel)]
+    if np.any(cancel < 0):
+      end = data[extension_field].values[np.min(np.where(cancel < 0))]
     else:
       end = data[extension_field].max()
 
