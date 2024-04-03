@@ -57,12 +57,21 @@ ifeq ($(RECURSIVE),true)
 # Recipes used when running this Makefile at top level and specifying a TARGET_DIRECTORY variable
 # No local results are computed, only calls to sub-Makefiles are issued
 
-# Smart way to call the targets in the sub-Makefiles without explicitly naling them
+# Smart way to call the targets in the sub-Makefiles without explicitly naming them
 $(DATA_DIRECTORIES)::
 	@$(MAKE) -C $@ $(MAKECMDGOALS)
 
-.PHONY: results clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
-results clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
+.PHONY: clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
+clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
+
+# In case TARGET_DIRECTORY is specified, also making a global results file to summarize the sub-results ones
+# The prerequisites need to run in a specific order
+.PHONY: results
+results: | $(DATA_DIRECTORIES) $(GLOBAL_RESULTS_FILE)
+
+$(GLOBAL_RESULTS_FILE): $(GLOBAL_RESULTS_EXE_FILE) $(addsuffix $(RESULTS_FILE),$(DATA_DIRECTORIES))
+	@echo "Writing $(abspath $@)"
+	@$(GLOBAL_RESULTS_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 else
 # Recipes used when running this Makefile at top level without specifying a TARGET_DIRECTORY variable, or running it as a sub-Makefile
@@ -73,7 +82,7 @@ results: $(RESULTS_FILE) ## Assembles all the intermediate .csv results files in
 
 .PHONY: clean
 clean: ## Deletes all the results and plots files
-	@rm -rf $(COMPUTED_DATA_FOLDER) $(PLOTS_FOLDER) $(RESULTS_FILE)
+	@rm -rf $(COMPUTED_DATA_FOLDER) $(PLOTS_FOLDER) $(RESULTS_FILE) $(GLOBAL_RESULTS_FILE)
 
 .PHONY: smooth
 smooth: $(SMOOTH_EFFORT_FILES) $(SMOOTH_POSITION_FILES) ## Smoothens the raw data and saves the smoothed data to a .csv file

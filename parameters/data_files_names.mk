@@ -31,6 +31,7 @@ TRIMMED_STRESS_STRAIN_FILES := $(patsubst $(TEST_DATA_FOLDER)/%/$(EFFORT_FILE_NA
 
 # Paths to the data computed from the experimental data
 RESULTS_FILE := results.csv
+GLOBAL_RESULTS_FILE := global_results.csv
 BEGIN_FILE := $(COMPUTED_DATA_FOLDER)/begin.csv
 END_FILE := $(COMPUTED_DATA_FOLDER)/end.csv
 YEOH_INTERPOLATION_FILE := $(COMPUTED_DATA_FOLDER)/yeoh_interpolation.csv

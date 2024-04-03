@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
 from typing import Optional
+from warnings import warn
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, begin_field, end_field, \
@@ -102,12 +103,19 @@ if __name__ == '__main__':
     if max_index is not None:
       data = data.iloc[:max_index]
 
+    # In case the number of points for smoothening is greater than the number
+    # of data points
+    if nb_points_smooth > len(data):
+      warn(f"Reduced the number of points from {nb_points_smooth} to "
+           f"{int(len(data) / 10)} !", RuntimeWarning)
+      nb_points_smooth = int(len(data) / 10)
+
     # Retrieving the first point where the second derivative cancels
     filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
                              deriv=2)
     cancel = np.diff(np.sign(filtered))
-    if np.any(cancel):
-      end = data[extension_field].values[np.argmin(cancel)]
+    if np.any(cancel < 0):
+      end = data[extension_field].values[np.min(np.where(cancel < 0))]
     else:
       end = data[extension_field].max()
 

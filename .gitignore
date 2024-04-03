@@ -130,3 +130,10 @@ dmypy.json
 
 # Pycharm folder
 .idea/
+
+# Default names of files generated when processing data
+results.csv
+global_results.csv
+plots/
+computed_data/
+test_data/
