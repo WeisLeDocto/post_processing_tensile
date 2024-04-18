@@ -1,10 +1,10 @@
 # coding: utf-8
 
-"""This script reads stress-strain data from source files, as well as begin
-extensions from another file. It then determines for each source file the
-maximum extension below which the stress-strain data is considered valid, based
-on the first cancellation point of the second derivative of stress. The maximum
-extensions are finally saved at the provided location."""
+"""This script reads begin-trimmed stress-strain data from source files. It
+then determines for each source file the maximum extension below which the
+stress-strain data is considered valid, based on the first cancellation point
+of the second derivative of stress. The maximum extensions are finally saved at
+the provided location."""
 
 import argparse
 import numpy as np
@@ -14,8 +14,9 @@ from typing import Optional
 from warnings import warn
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
-from ..tools.fields import identifier_field, begin_field, end_field, \
-  extension_field, stress_field, extensibility_field, ultimate_strength_field
+from ..tools.fields import (identifier_field, end_field,
+                            extension_field, stress_field, extensibility_field,
+                            ultimate_strength_field)
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -39,12 +40,12 @@ if __name__ == '__main__':
   parser.add_argument('nb_points_drop', type=int, nargs=1,
                       help="Length of the window over which to search for "
                            "drops in the stress value.")
-  parser.add_argument('begin_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the data on the "
-                           "begin extensions.")
-  parser.add_argument('maximum_point_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the data on the "
-                           "extrema points.")
+  parser.add_argument('ultimate_strength_file', type=checker_valid_csv,
+                      nargs=1, help="Path to the .csv file containing the "
+                                    "ultimate strength data.")
+  parser.add_argument('extensibility_file', type=checker_valid_csv, nargs=1,
+                      help="Path to the .csv file containing the "
+                           "extensibility data.")
   parser.add_argument('source_files', type=checker_valid_csv, nargs='+',
                       help="Paths to the .csv files containing the "
                            "stress-strain data.")
@@ -53,8 +54,8 @@ if __name__ == '__main__':
   # Getting the arguments from the parser
   destination = args.destination_file[0]
   source_files = args.source_files
-  begin_file = args.begin_file[0]
-  max_file = args.maximum_point_file[0]
+  ultimate_strength_file = args.ultimate_strength_file[0]
+  extensibility_file = args.extensibility_file[0]
   nb_points_smooth = args.nb_points_smooth[0]
   drop_threshold = args.drop_threshold[0] / 100
   nb_points_drop = args.nb_points_drop[0]
@@ -64,26 +65,26 @@ if __name__ == '__main__':
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
 
-  # Reading the begin points file and sorting the stress values
-  begin = pd.read_csv(begin_file).sort_values(by=[identifier_field])
-  begin_extensions = begin[begin_field]
+  # Reading the ultimate strength file and sorting the stress values
+  ultimate_strength = pd.read_csv(ultimate_strength_file).sort_values(
+    by=[identifier_field])
+  max_stresses = ultimate_strength[ultimate_strength_field]
 
-  # Reading the max points file and sorting the stress values
-  max_points = pd.read_csv(max_file).sort_values(by=[identifier_field])
-  max_extensions = max_points[extensibility_field]
-  max_stresses = max_points[ultimate_strength_field]
+  # Reading the extensibility file and sorting the extension values
+  extensibility = pd.read_csv(extensibility_file).sort_values(
+    by=[identifier_field])
+  max_extensions = extensibility[extensibility_field]
 
   # Iterating over the source files
-  for path, extension, extensibility, max_stress in zip(source_files,
-                                                        begin_extensions,
-                                                        max_extensions,
-                                                        max_stresses):
+  for path, extensibility, max_stress in zip(source_files,
+                                             max_extensions,
+                                             max_stresses):
     # Reading data from the source file
     test_nr = get_nr(path)
     data = pd.read_csv(path)
     # Keeping only the valid data points
-    data = data[(data[extension_field] >= extension) &
-                (data[extension_field] <= extensibility)]
+    data = data[data[extension_field] <= extensibility]
+
 
     # Searching for a sudden drop in the stress values
     max_index: Optional[int] = None

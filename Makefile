@@ -61,8 +61,8 @@ ifeq ($(RECURSIVE),true)
 $(DATA_DIRECTORIES)::
 	@$(MAKE) -C $@ $(MAKECMDGOALS)
 
-.PHONY: clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
-clean smooth stress_strain max_points begin end trim tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
+.PHONY: clean smooth stress_strain ultimate_strength begin trim_begin extensibility end trim_end yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
+clean smooth stress_strain ultimate_strength begin trim_begin extensibility end trim_end yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
 
 # In case TARGET_DIRECTORY is specified, also making a global results file to summarize the sub-results ones
 # The prerequisites need to run in a specific order
@@ -107,37 +107,53 @@ $(STRESS_STRAIN_DATA_FOLDER)/%.csv: $(STRESS_STRAIN_EXE_FILE) $(addprefix $(SMOO
 	@echo "Writing $(abspath $@)"
 	@$(STRESS_STRAIN_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
-.PHONY: max_points
-max_points: $(MAXIMUM_POINTS_FILE) ## Detects the ultimate strength and the extensibility from the stress-strain data for each test, and saves the values to a .csv file
+.PHONY: ultimate_strength
+ultimate_strength: $(ULTIMATE_STRENGTH_FILE) ## Detects the ultimate strength from the stress-strain data for each test, and saves the values to a .csv file
 
-$(MAXIMUM_POINTS_FILE): $(MAXIMUM_POINT_EXE_FILE) $(STRESS_STRAIN_FILES)
+$(ULTIMATE_STRENGTH_FILE): $(ULTIMATE_STRENGTH_EXE_FILE) $(STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(MAXIMUM_POINT_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
+	@$(ULTIMATE_STRENGTH_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: begin
 begin: $(BEGIN_FILE) ## Detects the begin extension of the valid stress-strain data for each test, and saves it to a .csv file
 
-$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(MAXIMUM_POINTS_FILE) $(STRESS_STRAIN_FILES) $(STRESS_THRESHOLD_FILE)
+$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(STRESS_STRAIN_FILES) $(STRESS_THRESHOLD_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(BEGIN_EXE) $(abspath $@) $(STRESS_THRESHOLD) $(abspath $(filter-out $< $(STRESS_THRESHOLD_FILE), $^))
 
+.PHONY: trim_begin
+trim_begin: $(BEGIN_TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
+
+$(BEGIN_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_BEGIN_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE)
+	@mkdir -p $(@D)
+	@echo "Writing $(abspath $@)"
+	@$(TRIM_BEGIN_EXE)  $(abspath $@) $(abspath $(filter-out $<, $^))
+
+.PHONY: extensibility
+extensibility: $(EXTENSIBILITY_FILE) ## Detects the extensibility from the stress-strain data for each test, and saves the values to a .csv file
+
+$(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_FILES)
+	@mkdir -p $(@D)
+	@echo "Writing $(abspath $@)"
+	@$(EXTENSIBILITY_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
+
 .PHONY: end
 end: $(END_FILE) ## Detects the end extension of the valid stress-strain data for each test, and saves it to a .csv file
 
-$(END_FILE): $(END_EXE_FILE) $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE) $(STRESS_STRAIN_FILES)
+$(END_FILE): $(END_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(END_EXE) $(abspath $@) $(NB_POINTS_SMOOTH_END) $(DROP_THRESHOLD) $(DROP_RANGE) $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(abspath $(filter-out $< $(BEGIN_FILE) $(MAXIMUM_POINTS_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE), $^))
+	@$(END_EXE) $(abspath $@) $(NB_POINTS_SMOOTH_END) $(DROP_THRESHOLD) $(DROP_RANGE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE), $^))
 
-.PHONY: trim
-trim: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, and saves only the valid part of it to a .csv file for each test
+.PHONY: trim_end
+trim_end: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the begin-trimmed stress-strain data as an input, discards the invalid end part, and saves only the valid part of it to a .csv file for each test
 
-$(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE) $(END_FILE)
+$(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_EXE_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(END_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(TRIM_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
+	@$(TRIM_END_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: yeoh_interpolation
 yeoh_interpolation: $(YEOH_INTERPOLATION_FILE) ## Fits a second-order Yeoh model to the valid stress-strain data for each test, and saves the parameters to a .csv file
@@ -155,7 +171,7 @@ $(TANGENT_MODULI_FILE): $(TANGENT_MODULI_EXE_FILE) $(MODULI_RANGES_FILE) $(TRIMM
 	@echo "Writing $(abspath $@)"
 	@$(TANGENT_MODULI_EXE) $(abspath $@) $(YOUNG_RANGE) $(HYPERELASTIC_RANGE) $(abspath $(filter-out $< $(MODULI_RANGES_FILE), $^))
 
-$(RESULTS_FILE): $(RESULTS_EXE_FILE) $(NOTES_FILE) $(BEGIN_FILE) $(END_FILE) $(MAXIMUM_POINTS_FILE) $(YEOH_INTERPOLATION_FILE) $(TANGENT_MODULI_FILE)
+$(RESULTS_FILE): $(RESULTS_EXE_FILE) $(NOTES_FILE) $(BEGIN_FILE) $(END_FILE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(YEOH_INTERPOLATION_FILE) $(TANGENT_MODULI_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(RESULTS_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
