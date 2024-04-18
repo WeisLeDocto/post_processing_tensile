@@ -12,7 +12,7 @@ ifeq ($(MAKELEVEL),0)
 	export NUMBER_POINTS_BEGIN_END_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth_end.mk)
 	export STRESS_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/stress_thresh.mk)
 	export MODULI_RANGES_FILE := $(abspath $(PARAMETERS_FOLDER)/moduli_ranges.mk)
-	export DROP_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/drop_thresh.mk)
+	export PEAK_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/peak_thresh.mk)
 endif
 
 # Including the .mk files
@@ -24,7 +24,7 @@ ifeq ($(MAKELEVEL),0)
 	include $(NUMBER_POINTS_BEGIN_END_FILE)
 	include $(STRESS_THRESHOLD_FILE)
 	include $(MODULI_RANGES_FILE)
-	include $(DROP_THRESHOLD_FILE)
+	include $(PEAK_THRESHOLD_FILE)
 endif
 
 # Calling Makefiles recursively in the target directory only if the TARGET_DIRECTORY variable is set by the user
@@ -142,10 +142,10 @@ $(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_F
 .PHONY: end
 end: $(END_FILE) ## Detects the end extension of the valid stress-strain data for each test, and saves it to a .csv file
 
-$(END_FILE): $(END_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_FILES)
+$(END_FILE): $(END_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(PEAK_THRESHOLD_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(END_EXE) $(abspath $@) $(NB_POINTS_SMOOTH_END) $(DROP_THRESHOLD) $(DROP_RANGE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(DROP_THRESHOLD_FILE), $^))
+	@$(END_EXE) $(abspath $@) $(NB_POINTS_SMOOTH_END) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(NUMBER_POINTS_BEGIN_END_FILE) $(PEAK_THRESHOLD_FILE), $^))
 
 .PHONY: trim_end
 trim_end: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the begin-trimmed stress-strain data as an input, discards the invalid end part, and saves only the valid part of it to a .csv file for each test

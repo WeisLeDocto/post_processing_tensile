@@ -9,7 +9,7 @@ the provided location."""
 import argparse
 import numpy as np
 import pandas as pd
-from scipy.signal import savgol_filter
+from scipy.signal import savgol_filter, find_peaks
 from typing import Optional
 from warnings import warn
 
@@ -33,13 +33,13 @@ if __name__ == '__main__':
                       help="Number of points to use for running the "
                            "Savitzky-Golay filter for smoothening the second "
                            "derivative of the stress.")
-  parser.add_argument('drop_threshold', type=float, nargs=1,
+  parser.add_argument('peak_prominence', type=float, nargs=1,
                       help="Minimum percentage of the total stress range in "
-                           "the test above which a local drop in stress will "
+                           "the test above which a local stress peak will "
                            "be considered as the end of the valid data.")
-  parser.add_argument('nb_points_drop', type=int, nargs=1,
-                      help="Length of the window over which to search for "
-                           "drops in the stress value.")
+  parser.add_argument('nb_points_peak', type=int, nargs=1,
+                      help="Maximum width, in samples, of stress peaks to "
+                           "consider for selecting the end cutoff extension.")
   parser.add_argument('ultimate_strength_file', type=checker_valid_csv,
                       nargs=1, help="Path to the .csv file containing the "
                                     "ultimate strength data.")
@@ -57,8 +57,8 @@ if __name__ == '__main__':
   ultimate_strength_file = args.ultimate_strength_file[0]
   extensibility_file = args.extensibility_file[0]
   nb_points_smooth = args.nb_points_smooth[0]
-  drop_threshold = args.drop_threshold[0] / 100
-  nb_points_drop = args.nb_points_drop[0]
+  peak_prominence = args.peak_prominence[0] / 100
+  nb_points_peak = args.nb_points_peak[0]
 
   to_write: Optional[pd.DataFrame] = None
 
@@ -85,24 +85,16 @@ if __name__ == '__main__':
     # Keeping only the valid data points
     data = data[data[extension_field] <= extensibility]
 
-
     # Searching for a sudden drop in the stress values
-    max_index: Optional[int] = None
-    for i in range(len(data) - nb_points_drop):
-      # Iterating over sub-frames of the total series
-      window = data[stress_field][i: i + nb_points_drop].values
-      min_val = np.min(window)
-      if window[0] - min_val > drop_threshold * max_stress:
-        # Getting the maximum value reached before the stress drops
-        (min_index, *_), *_ = np.where(window == min_val)
-        (max_index, *_), *_ = np.where(window == np.max(window[:min_index]))
-        max_index += i
-        # Stopping as soon as the first drop is detected
-        break
+    max_indices, _ = find_peaks(data[stress_field].values,
+                                prominence=(peak_prominence * max_stress,
+                                            None),
+                                width=(None, nb_points_peak),
+                                rel_height=1)
 
     # Excluding data after the drop in stress values, if one was detected
-    if max_index is not None:
-      data = data.iloc[:max_index]
+    if max_indices.size:
+      data = data.iloc[:np.min(max_indices)]
 
     # In case the number of points for smoothening is greater than the number
     # of data points
