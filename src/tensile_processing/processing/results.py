@@ -24,9 +24,12 @@ if __name__ == '__main__':
   parser.add_argument('end_file', type=checker_valid_csv, nargs=1,
                       help="Path to the .csv file containing the data on the "
                            "end extensions.")
-  parser.add_argument('max_points_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the data on the "
-                           "extensibility and the ultimate strength..")
+  parser.add_argument('ultimate_strength_file', type=checker_valid_csv,
+                      nargs=1, help="Path to the .csv file containing the "
+                                    "ultimate strength data.")
+  parser.add_argument('extensibility_file', type=checker_valid_csv, nargs=1,
+                      help="Path to the .csv file containing the "
+                           "extensibility data.")
   parser.add_argument('yeoh_file', type=checker_valid_csv, nargs=1,
                       help="Path to the .csv file containing the data on the "
                            "Yeoh coefficients.")
@@ -42,7 +45,8 @@ if __name__ == '__main__':
   notes_file = args.notes_file[0]
   begin_file = args.begin_file[0]
   end_file = args.end_file[0]
-  max_points_file = args.max_points_file[0]
+  ultimate_strength_file = args.ultimate_strength_file[0]
+  extensibility_file = args.extensibility_file[0]
   yeoh_file = args.yeoh_file[0]
   tangent_moduli_file = args.tangent_moduli_file[0]
   results_file = args.results_file[0]
@@ -51,7 +55,8 @@ if __name__ == '__main__':
   notes = pd.read_csv(notes_file)
   begin = pd.read_csv(begin_file)
   end = pd.read_csv(end_file)
-  max_points = pd.read_csv(max_points_file)
+  ultimate_strength = pd.read_csv(ultimate_strength_file)
+  extensibility = pd.read_csv(extensibility_file)
   yeoh = pd.read_csv(yeoh_file)
   moduli = pd.read_csv(tangent_moduli_file)
 
@@ -61,7 +66,9 @@ if __name__ == '__main__':
                          on=identifier_field)
   results = results.join(end.set_index(identifier_field),
                          on=identifier_field)
-  results = results.join(max_points.set_index(identifier_field),
+  results = results.join(ultimate_strength.set_index(identifier_field),
+                         on=identifier_field)
+  results = results.join(extensibility.set_index(identifier_field),
                          on=identifier_field)
   results = results.join(yeoh.set_index(identifier_field),
                          on=identifier_field)

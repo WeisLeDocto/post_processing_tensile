@@ -25,6 +25,9 @@ SMOOTH_POSITION_FILES := $(patsubst $(TEST_DATA_FOLDER)/%/$(POSITION_FILE_NAME),
 # Paths to the stress-strain data folder and files
 STRESS_STRAIN_DATA_FOLDER := $(COMPUTED_DATA_FOLDER)/stress_strain
 STRESS_STRAIN_FILES := $(patsubst $(TEST_DATA_FOLDER)/%/$(EFFORT_FILE_NAME), $(STRESS_STRAIN_DATA_FOLDER)/%.csv, $(VALID_EFFORT_DATA))
+# Paths to the begin-only trimmed stress-strain data folder and files
+BEGIN_TRIMMED_STRESS_STRAIN_DATA_FOLDER := $(COMPUTED_DATA_FOLDER)/begin_trimmed_stress_strain
+BEGIN_TRIMMED_STRESS_STRAIN_FILES := $(patsubst $(TEST_DATA_FOLDER)/%/$(EFFORT_FILE_NAME), $(BEGIN_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv, $(VALID_EFFORT_DATA))
 # Paths to the trimmed stress-strain data folder and files
 TRIMMED_STRESS_STRAIN_DATA_FOLDER := $(COMPUTED_DATA_FOLDER)/trimmed_stress_strain
 TRIMMED_STRESS_STRAIN_FILES := $(patsubst $(TEST_DATA_FOLDER)/%/$(EFFORT_FILE_NAME), $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv, $(VALID_EFFORT_DATA))
@@ -35,7 +38,8 @@ GLOBAL_RESULTS_FILE := global_results.csv
 BEGIN_FILE := $(COMPUTED_DATA_FOLDER)/begin.csv
 END_FILE := $(COMPUTED_DATA_FOLDER)/end.csv
 YEOH_INTERPOLATION_FILE := $(COMPUTED_DATA_FOLDER)/yeoh_interpolation.csv
-MAXIMUM_POINTS_FILE := $(COMPUTED_DATA_FOLDER)/max_point.csv
+ULTIMATE_STRENGTH_FILE := $(COMPUTED_DATA_FOLDER)/ultimate_strength.csv
+EXTENSIBILITY_FILE := $(COMPUTED_DATA_FOLDER)/extensibility.csv
 TANGENT_MODULI_FILE := $(COMPUTED_DATA_FOLDER)/tangent_moduli.csv
 
 # The folder containing all the plots

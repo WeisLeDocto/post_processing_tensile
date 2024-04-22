@@ -28,9 +28,9 @@ if __name__ == '__main__':
   parser.add_argument('stress_threshold', type=float, nargs=1,
                       help="The percentage of the total stress below which the"
                            " data is not considered valid.")
-  parser.add_argument('max_points_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the ultimate "
-                           "strength and the extensibility.")
+  parser.add_argument('ultimate_strength_file', type=checker_valid_csv,
+                      nargs=1, help="Path to the .csv file containing the "
+                                    "ultimate strength.")
   parser.add_argument('source_files', type=checker_valid_csv, nargs='+',
                       help="Paths to the .csv files containing the "
                            "stress-strain data.")
@@ -40,7 +40,7 @@ if __name__ == '__main__':
   destination = args.destination_file[0]
   source_files = args.source_files
   threshold = args.stress_threshold[0] / 100
-  max_points_file = args.max_points_file[0]
+  ultimate_strength_file = args.ultimate_strength_file[0]
 
   # Creating the dataframe to save
   to_write: Optional[pd.DataFrame] = None
@@ -48,8 +48,9 @@ if __name__ == '__main__':
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
   # Reading the max points file and sorting the stress values
-  max_points = pd.read_csv(max_points_file).sort_values(by=[identifier_field])
-  max_stresses = max_points[ultimate_strength_field]
+  ultimate_strength = pd.read_csv(ultimate_strength_file).sort_values(
+    by=[identifier_field])
+  max_stresses = ultimate_strength[ultimate_strength_field]
 
   # Iterating over the source files
   for path, max_stress in zip(source_files, max_stresses):
