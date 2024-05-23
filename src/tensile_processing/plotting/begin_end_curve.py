@@ -52,6 +52,11 @@ if __name__ == '__main__':
   ends = pd.read_csv(end_file)
   end = float(ends[end_field][ends[identifier_field] == test_nr].iloc[0])
 
+  # The end cutoff is calculated in an already re-interpolated extension basis
+  # It needs to be multiplied by the beginning cutoff to obtain the end cutoff
+  # value in the original extension basis, which is needed for display
+  end *= begin
+
   # Dividing data into three categories
   before = data[data[extension_field] < begin]
   after = data[data[extension_field] > end]
