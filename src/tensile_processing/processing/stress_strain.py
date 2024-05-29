@@ -11,7 +11,7 @@ import pandas as pd
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, initial_length_field, \
   height_offset_field, height_field, width_offset_field, width_field, \
-  extension_field, stress_field, time_field, position_field
+  extension_field, stress_field, time_field, position_field, effort_field
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -75,7 +75,8 @@ if __name__ == '__main__':
     width = float(notes[width_field].iloc[0])
 
   # Calculating the stress from the effort and the section
-  stress = effort.values / [1, width / 1000 * height / 1000]
+  stress = effort[[time_field,
+                   effort_field]].values / [1, width / 1000 * height / 1000]
   stress[:, 1] -= np.mean(stress[:200, 1])
   stress[:, 1] /= 1000
 
