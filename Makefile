@@ -10,7 +10,7 @@ ifeq ($(MAKELEVEL),0)
 	export EXE_NAMES_FILE := $(abspath $(PARAMETERS_FOLDER)/exe_files_names.mk)
 	export NUMBER_POINTS_SMOOTH_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth.mk)
 	export NUMBER_POINTS_BEGIN_END_FILE := $(abspath $(PARAMETERS_FOLDER)/nb_pts_smooth_end.mk)
-	export STRESS_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/stress_thresh.mk)
+	export PARAMS_DETECT_BEGIN_FILE := $(abspath $(PARAMETERS_FOLDER)/params_detect_begin.mk)
 	export MODULI_RANGES_FILE := $(abspath $(PARAMETERS_FOLDER)/moduli_ranges.mk)
 	export PEAK_THRESHOLD_FILE := $(abspath $(PARAMETERS_FOLDER)/peak_thresh.mk)
 endif
@@ -22,7 +22,7 @@ ifeq ($(MAKELEVEL),0)
 	include $(EXE_NAMES_FILE)
 	include $(NUMBER_POINTS_SMOOTH_FILE)
 	include $(NUMBER_POINTS_BEGIN_END_FILE)
-	include $(STRESS_THRESHOLD_FILE)
+	include $(PARAMS_DETECT_BEGIN_FILE)
 	include $(MODULI_RANGES_FILE)
 	include $(PEAK_THRESHOLD_FILE)
 endif
@@ -118,10 +118,10 @@ $(ULTIMATE_STRENGTH_FILE): $(ULTIMATE_STRENGTH_EXE_FILE) $(STRESS_STRAIN_FILES)
 .PHONY: begin
 begin: $(BEGIN_FILE) ## Detects the begin extension of the valid stress-strain data for each test, and saves it to a .csv file
 
-$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(STRESS_STRAIN_FILES) $(STRESS_THRESHOLD_FILE)
+$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(STRESS_STRAIN_FILES) $(PARAMS_DETECT_BEGIN_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(BEGIN_EXE) $(abspath $@) $(STRESS_THRESHOLD) $(abspath $(filter-out $< $(STRESS_THRESHOLD_FILE), $^))
+	@$(BEGIN_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(NB_POINTS_SMOOTH_BEGIN) $(SECOND_DERIVATIVE_THRESHOLD) $(abspath $(filter-out $< $(PARAMS_DETECT_BEGIN_FILE), $^))
 
 .PHONY: trim_begin
 trim_begin: $(BEGIN_TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
