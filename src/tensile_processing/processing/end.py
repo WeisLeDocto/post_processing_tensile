@@ -2,9 +2,10 @@
 
 """This script reads begin-trimmed stress-strain data from source files. It
 then determines for each source file the maximum extension below which the
-stress-strain data is considered valid, based on the first cancellation point
-of the second derivative of stress. The maximum extensions are finally saved at
-the provided location."""
+stress-strain data is considered valid, based either on the first cancellation
+point of the second derivative of stress or on the maximum value of the first
+derivative of the stress. The maximum extensions are finally saved at the
+provided location."""
 
 import argparse
 import numpy as np
@@ -29,10 +30,15 @@ if __name__ == '__main__':
   parser.add_argument('destination_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where to store the end "
                            "extension data.")
+  parser.add_argument('use_second_derivative', type=str, nargs=1,
+                      help="Boolean indicating whether to use the second "
+                           "derivative method for detecting the maximum "
+                           "extension. Otherwise, the maximum of the first "
+                           "derivative is used.")
   parser.add_argument('nb_points_smooth', type=int, nargs=1,
                       help="Number of points to use for running the "
-                           "Savitzky-Golay filter for smoothening the second "
-                           "derivative of the stress.")
+                           "Savitzky-Golay filter for smoothening the first "
+                           "or second derivative of the stress.")
   parser.add_argument('peak_prominence', type=float, nargs=1,
                       help="Minimum percentage of the total stress range in "
                            "the test above which a local stress peak will "
@@ -54,6 +60,7 @@ if __name__ == '__main__':
   # Getting the arguments from the parser
   destination = args.destination_file[0]
   source_files = args.source_files
+  use_second_dev = True if args.use_second_derivative[0] == 'true' else False
   ultimate_strength_file = args.ultimate_strength_file[0]
   extensibility_file = args.extensibility_file[0]
   nb_points_smooth = args.nb_points_smooth[0]
@@ -104,13 +111,22 @@ if __name__ == '__main__':
       nb_points_smooth = int(len(data) / 10)
 
     # Retrieving the first point where the second derivative cancels
-    filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
-                             deriv=2)
-    cancel = np.diff(np.sign(filtered))
-    if np.any(cancel < 0):
-      end = data[extension_field].values[np.min(np.where(cancel < 0))]
+    if use_second_dev:
+      # The maximum extension is determined as the first cancellation point of
+      # the second derivative of the stress
+      filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
+                               deriv=2)
+      cancel = np.diff(np.sign(filtered))
+      if np.any(cancel < 0):
+        end = data[extension_field].values[np.min(np.where(cancel < 0))]
+      else:
+        end = data[extension_field].max()
     else:
-      end = data[extension_field].max()
+      # The maximum extension is determined as the maximum of the first
+      # derivative of the stress
+      filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
+                               deriv=1)
+      end = data[extension_field].values[np.argmax(filtered)]
 
     # Adding the values to the dataframe to save
     if to_write is None:
