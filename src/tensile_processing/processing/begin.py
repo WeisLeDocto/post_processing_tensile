@@ -11,6 +11,7 @@ import argparse
 import pandas as pd
 from typing import Optional
 from scipy.signal import savgol_filter
+from warnings import warn
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import identifier_field, begin_field, \
@@ -88,14 +89,16 @@ if __name__ == '__main__':
     # Determining the beginning point of the valid data based on the value of
     # the second derivative
     if use_second_dev:
-      ext_max = data[extension_field].where(
-        abs(data[stress_field] - max_stress) / max_stress < 1e-3).min()
-      filtered_stress = savgol_filter(
-        data[stress_field].values, nb_points_smooth, 3,
-        deriv=2)[data[extension_field] <= ext_max]
-      filtered_ext = data[extension_field][data[extension_field] <= ext_max]
-      begin = filtered_ext[filtered_stress >
-                           sec_dev_thresh * filtered_stress.max()].min()
+
+      if nb_points_smooth > len(data):
+        warn(f"Reduced the number of points from {nb_points_smooth} to "
+             f"{int(len(data) / 10)} !", RuntimeWarning)
+        nb_points_smooth = int(len(data) / 10)
+
+      sec_dev = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
+                              deriv=2)
+      begin = data[extension_field][sec_dev >
+                                    sec_dev_thresh * sec_dev.max()].min()
 
     # Determining the beginning point of the valid data based on a stress
     # threshold
