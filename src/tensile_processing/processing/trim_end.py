@@ -39,7 +39,7 @@ if __name__ == '__main__':
   test_nr = get_nr(source)
   data = pd.read_csv(source)
 
-  # Reading the beginning from the data files
+  # Reading the end extensions from the data files
   end = pd.read_csv(end_file)
   end = float(end[end_field][end[identifier_field] == test_nr].iloc[0])
 
