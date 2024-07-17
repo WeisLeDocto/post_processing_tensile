@@ -80,6 +80,11 @@ if __name__ == '__main__':
     test_nr = get_nr(path)
     data = pd.read_csv(path)
 
+    # Restricting data to the portion of interest
+    idx_max = data[stress_field].idxmax()
+    idx_min = data[:idx_max][stress_field].idxmin()
+    data = data[idx_min: idx_max]
+
     # Determining the beginning point of the valid data based on the value of
     # the second derivative
     if use_second_dev:
