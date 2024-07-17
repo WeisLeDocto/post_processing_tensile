@@ -15,4 +15,4 @@ export NB_POINTS_SMOOTH_BEGIN := 3000
 # the valid data will be
 # SECOND_DERIVATIVE_THRESHOLD / 100 * max_second_derivative, if
 # using the second derivative method
-export SECOND_DERIVATIVE_THRESHOLD := 10
+export SECOND_DERIVATIVE_THRESHOLD := 20
