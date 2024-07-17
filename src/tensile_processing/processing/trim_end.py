@@ -8,8 +8,7 @@ import argparse
 import pandas as pd
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
-from ..tools.fields import (identifier_field, end_field, extension_field,
-                            stress_field)
+from ..tools.fields import identifier_field, end_field, extension_field
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
