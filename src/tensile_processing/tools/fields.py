@@ -11,6 +11,7 @@ height_field = 'Height (mm)'
 width_offset_field = None
 width_field = 'Width (mm)'
 initial_length_field = 'L0 (mm)'
+end_field = 'End extension (mm/mm)'
 begin_field = 'Begin extension (mm/mm)'
 end_fit_field = 'End extension fit (mm/mm)'
 extensibility_field = 'Extensibility (mm/mm)'

@@ -61,8 +61,8 @@ ifeq ($(RECURSIVE),true)
 $(DATA_DIRECTORIES)::
 	@$(MAKE) -C $@ $(MAKECMDGOALS)
 
-.PHONY: clean smooth stress_strain ultimate_strength begin trim_begin extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
-clean smooth stress_strain ultimate_strength begin trim_begin extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
+.PHONY: clean smooth stress_strain end trim_end ultimate_strength begin trim_begin extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
+clean smooth stress_strain end trim_end ultimate_strength begin trim_begin extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
 
 # In case TARGET_DIRECTORY is specified, also making a global results file to summarize the sub-results ones
 # The prerequisites need to run in a specific order
@@ -107,6 +107,22 @@ $(STRESS_STRAIN_DATA_FOLDER)/%.csv: $(STRESS_STRAIN_EXE_FILE) $(addprefix $(SMOO
 	@echo "Writing $(abspath $@)"
 	@$(STRESS_STRAIN_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
+.PHONY: end
+end: $(END_FILE) ## Detects the end extension of the valid stress-strain data for each test, and saves it to a .csv file
+
+$(END_FILE): $(END_EXE_FILE) $(STRESS_STRAIN_FILES)
+	@mkdir -p $(@D)
+	@echo "Writing $(abspath $@)"
+	@$(END_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
+
+.PHONY: trim_end
+trim_end: $(END_TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, discards the invalid end part, and saves only the valid part of it to a .csv file
+
+$(END_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(END_FILE)
+	@mkdir -p $(@D)
+	@echo "Writing $(abspath $@)"
+	@$(TRIM_END_EXE)  $(abspath $@) $(abspath $(filter-out $<, $^))
+
 .PHONY: ultimate_strength
 ultimate_strength: $(ULTIMATE_STRENGTH_FILE) ## Detects the ultimate strength from the stress-strain data for each test, and saves the values to a .csv file
 
@@ -124,9 +140,9 @@ $(BEGIN_FILE): $(BEGIN_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(STRESS_STRAIN_FILES
 	@$(BEGIN_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(NB_POINTS_SMOOTH_BEGIN) $(SECOND_DERIVATIVE_THRESHOLD) $(abspath $(filter-out $< $(PARAMS_DETECT_BEGIN_FILE), $^))
 
 .PHONY: trim_begin
-trim_begin: $(BEGIN_TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
+trim_begin: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
 
-$(BEGIN_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_BEGIN_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE)
+$(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_BEGIN_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(TRIM_BEGIN_EXE)  $(abspath $@) $(abspath $(filter-out $<, $^))
@@ -134,7 +150,7 @@ $(BEGIN_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_BEGIN_EXE_FILE) $(STRES
 .PHONY: extensibility
 extensibility: $(EXTENSIBILITY_FILE) ## Detects the extensibility from the stress-strain data for each test, and saves the values to a .csv file
 
-$(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_FILES)
+$(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(EXTENSIBILITY_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
@@ -142,15 +158,15 @@ $(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_F
 .PHONY: end_fit
 end_fit: $(END_FIT_FILE) ## Detects the end extension of the stress-strain data valid for interpolation for each test, and saves it to a .csv file
 
-$(END_FIT_FILE): $(END_FIT_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_FILES)
+$(END_FIT_FILE): $(END_FIT_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(END_FIT_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_END) $(NB_POINTS_SMOOTH_END) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE), $^))
 
 .PHONY: trim_end_fit
-trim_end_fit: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the begin-trimmed stress-strain data as an input, discards the invalid end part, and saves only the valid part of it to a .csv file for each test
+trim_end_fit: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the trimmed stress-strain data as an input, keeps only the relevant part for  it to a .csv file for each test
 
-$(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_FIT_EXE_FILE) $(BEGIN_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(END_FIT_FILE)
+$(TRIMMED_FIT_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_FIT_EXE_FILE) $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(END_FIT_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(TRIM_END_FIT_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
@@ -158,7 +174,7 @@ $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_FIT_EXE_FILE) $(BEGIN_TRI
 .PHONY: yeoh_interpolation
 yeoh_interpolation: $(YEOH_INTERPOLATION_FILE) ## Fits a second-order Yeoh model to the valid stress-strain data for each test, and saves the parameters to a .csv file
 
-$(YEOH_INTERPOLATION_FILE): $(YEOH_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
+$(YEOH_INTERPOLATION_FILE): $(YEOH_EXE_FILE) $(TRIMMED_FIT_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(YEOH_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
@@ -166,7 +182,7 @@ $(YEOH_INTERPOLATION_FILE): $(YEOH_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 .PHONY: tangent_moduli
 tangent_moduli: $(TANGENT_MODULI_FILE) ## Calculates the tangent moduli at both ends of the valid stress-strain data for each test, and saves the slopes to a .csv file
 
-$(TANGENT_MODULI_FILE): $(TANGENT_MODULI_EXE_FILE) $(MODULI_RANGES_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
+$(TANGENT_MODULI_FILE): $(TANGENT_MODULI_EXE_FILE) $(MODULI_RANGES_FILE) $(TRIMMED_FIT_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(TANGENT_MODULI_EXE) $(abspath $@) $(YOUNG_RANGE) $(HYPERELASTIC_RANGE) $(abspath $(filter-out $< $(MODULI_RANGES_FILE), $^))
@@ -223,7 +239,7 @@ $(ALL_STRESS_STRAIN_CURVES): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(STRES
 	@echo "Writing $(abspath $@)"
 	@$(ALL_STRESS_STRAIN_EXE) $(abspath $(word 2,$^)) $(abspath $@) $(abspath $(filter-out $< $(NOTES_FILE), $^))
 
-$(ALL_STRESS_STRAIN_CURVES_TRIMMED): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
+$(ALL_STRESS_STRAIN_CURVES_TRIMMED): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(TRIMMED_FIT_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(ALL_STRESS_STRAIN_EXE) $(abspath $(word 2,$^)) $(abspath $@) $(abspath $(filter-out $< $(NOTES_FILE), $^))
@@ -231,7 +247,7 @@ $(ALL_STRESS_STRAIN_CURVES_TRIMMED): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE)
 .PHONY: yeoh_interpolation_plots
 yeoh_interpolation_plots: $(INTERPOLATION_PLOTS_FILES) ## Plots the valid stress-strain data in a .tiff file for each test, with the fit of the Yeoh model superimposed
 
-$(INTERPOLATION_CURVES_FOLDER)/%.tiff: $(INTERPOLATED_CURVE_EXE_FILE) $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(YEOH_INTERPOLATION_FILE)
+$(INTERPOLATION_CURVES_FOLDER)/%.tiff: $(INTERPOLATED_CURVE_EXE_FILE) $(TRIMMED_FIT_STRESS_STRAIN_DATA_FOLDER)/%.csv $(YEOH_INTERPOLATION_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(INTERPOLATED_CURVE_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
@@ -239,7 +255,7 @@ $(INTERPOLATION_CURVES_FOLDER)/%.tiff: $(INTERPOLATED_CURVE_EXE_FILE) $(TRIMMED_
 .PHONY: tangent_moduli_plots
 tangent_moduli_plots: $(TANGENT_MODULI_PLOTS_FILES) ## Plots the valid stress-strain data in a .tiff file for each test, with the fit of the tangent moduli superimposed
 
-$(TANGENT_MODULI_CURVES_FOLDER)/%.tiff: $(TANGENT_MODULI_CURVE_EXE_FILE) $(MODULI_RANGES_FILE) $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(TANGENT_MODULI_FILE)
+$(TANGENT_MODULI_CURVES_FOLDER)/%.tiff: $(TANGENT_MODULI_CURVE_EXE_FILE) $(MODULI_RANGES_FILE) $(TRIMMED_FIT_STRESS_STRAIN_DATA_FOLDER)/%.csv $(TANGENT_MODULI_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(TANGENT_MODULI_CURVE_EXE) $(abspath $@) $(YOUNG_RANGE) $(HYPERELASTIC_RANGE) $(abspath $(filter-out $< $(MODULI_RANGES_FILE), $^))
