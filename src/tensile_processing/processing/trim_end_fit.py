@@ -1,8 +1,8 @@
 # coding: utf-8
 
 """This script reads stress-strain data from the source file, as well as the
-end elongation from another file. It then trims the end of the stress-strain
-data, and saves the trimmed data at the provided location."""
+end extension cutoff from another file. It then trims the end of the
+stress-strain data, and saves the trimmed data at the provided location."""
 
 import argparse
 import pandas as pd
@@ -15,9 +15,9 @@ if __name__ == '__main__':
 
   # Parser for parsing the command line arguments of the script
   parser = argparse.ArgumentParser(
-    description="Reads the stress-strain data from the source files, as well "
-                "as the end cutoff values. Then, trims the end of the "
-                "stress-strain data and saves the trimmed data in the "
+    description="Reads the trimmed stress-strain data from the source files, "
+                "as well as the end extension values. Then, trims the end of "
+                "the stress-strain data and saves the trimmed data in the "
                 "destination file.")
   parser.add_argument('destination_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where to save the trimmed "

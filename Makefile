@@ -158,13 +158,13 @@ $(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 .PHONY: end_fit
 end_fit: $(END_FIT_FILE) ## Detects the end extension of the stress-strain data valid for interpolation for each test, and saves it to a .csv file
 
-$(END_FIT_FILE): $(END_FIT_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
+$(END_FIT_FILE): $(END_FIT_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(END_FIT_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_END) $(NB_POINTS_SMOOTH_END) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(EXTENSIBILITY_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE), $^))
+	@$(END_FIT_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_END) $(NB_POINTS_SMOOTH_END) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(ULTIMATE_STRENGTH_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE), $^))
 
 .PHONY: trim_end_fit
-trim_end_fit: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the trimmed stress-strain data as an input, keeps only the relevant part for  it to a .csv file for each test
+trim_end_fit: $(TRIMMED_FIT_STRESS_STRAIN_FILES) ## Takes the trimmed stress-strain data as an input, keeps only the relevant part for  it to a .csv file for each test
 
 $(TRIMMED_FIT_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_FIT_EXE_FILE) $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(END_FIT_FILE)
 	@mkdir -p $(@D)

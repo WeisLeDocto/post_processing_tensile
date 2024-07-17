@@ -1,11 +1,11 @@
 # coding: utf-8
 
-"""This script reads begin-trimmed stress-strain data from source files. It
-then determines for each source file the maximum extension below which the
-stress-strain data is considered valid, based either on the first cancellation
-point of the second derivative of stress or on the maximum value of the first
-derivative of the stress. The maximum extensions are finally saved at the
-provided location."""
+"""This script reads trimmed stress-strain data from source files. It then
+determines for each source file the maximum extension below which the
+stress-strain data is considered valid for a Yeoh fit, based either on the
+first cancellation point of the second derivative of stress or on the maximum
+value of the first derivative of the stress. The maximum extensions are finally
+saved at the provided location."""
 
 import argparse
 import numpy as np
@@ -16,7 +16,7 @@ from warnings import warn
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import (identifier_field, end_fit_field,
-                            extension_field, stress_field, extensibility_field,
+                            extension_field, stress_field,
                             ultimate_strength_field)
 from ..tools.get_nr import get_nr
 
@@ -25,8 +25,9 @@ if __name__ == '__main__':
   # Parser for parsing the command line arguments of the script
   parser = argparse.ArgumentParser(
     description="For each source file, determines the maximum extension under "
-                "which the stress-strain data is considered valid. The maximum"
-                " extensions are then saved to the destination file.")
+                "which the stress-strain data is considered valid for a fit "
+                "with Yeoh. The maximum extensions are then saved to the "
+                "destination file.")
   parser.add_argument('destination_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where to store the end "
                            "extension data.")
@@ -49,9 +50,6 @@ if __name__ == '__main__':
   parser.add_argument('ultimate_strength_file', type=checker_valid_csv,
                       nargs=1, help="Path to the .csv file containing the "
                                     "ultimate strength data.")
-  parser.add_argument('extensibility_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the "
-                           "extensibility data.")
   parser.add_argument('source_files', type=checker_valid_csv, nargs='+',
                       help="Paths to the .csv files containing the "
                            "stress-strain data.")
@@ -62,7 +60,6 @@ if __name__ == '__main__':
   source_files = args.source_files
   use_second_dev = True if args.use_second_derivative[0] == 'true' else False
   ultimate_strength_file = args.ultimate_strength_file[0]
-  extensibility_file = args.extensibility_file[0]
   nb_points_smooth = args.nb_points_smooth[0]
   peak_prominence = args.peak_prominence[0] / 100
   nb_points_peak = args.nb_points_peak[0]
@@ -77,20 +74,11 @@ if __name__ == '__main__':
     by=[identifier_field])
   max_stresses = ultimate_strength[ultimate_strength_field]
 
-  # Reading the extensibility file and sorting the extension values
-  extensibility = pd.read_csv(extensibility_file).sort_values(
-    by=[identifier_field])
-  max_extensions = extensibility[extensibility_field]
-
   # Iterating over the source files
-  for path, extensibility, max_stress in zip(source_files,
-                                             max_extensions,
-                                             max_stresses):
+  for path, max_stress in zip(source_files, max_stresses):
     # Reading data from the source file
     test_nr = get_nr(path)
     data = pd.read_csv(path)
-    # Keeping only the valid data points
-    data = data[data[extension_field] <= extensibility]
 
     # Searching for a sudden drop in the stress values
     max_indices, _ = find_peaks(data[stress_field].values,
