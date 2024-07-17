@@ -84,7 +84,7 @@ if __name__ == '__main__':
     # the second derivative
     if use_second_dev:
       ext_max = data[extension_field].where(
-        data[stress_field] == max_stress).min()
+        abs(data[stress_field] - max_stress) / max_stress < 1e-3).min()
       filtered_stress = savgol_filter(
         data[stress_field].values, nb_points_smooth, 3,
         deriv=2)[data[extension_field] <= ext_max]
