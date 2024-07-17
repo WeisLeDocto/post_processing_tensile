@@ -4,7 +4,7 @@
 
 # Fields in the results file
 identifier_field = 'Number'
-condition_field = 'Index'
+condition_field = 'Preservation'
 type_field = 'Type'
 height_offset_field = None
 height_field = 'Height (mm)'
