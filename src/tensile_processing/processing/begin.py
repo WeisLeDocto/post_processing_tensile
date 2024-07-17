@@ -1,20 +1,21 @@
 # coding: utf-8
 
-"""This script reads stress-strain data from source files, as well as ultimate
-strengths from another file. It then determines for each source file the
-minimum extension above which the stress-strain data is considered valid, based
-either on a percentage of the ultimate strength, or on a threshold on the
-second derivative of the stress. The minimum extensions are finally saved at
-the provided location."""
+"""This script reads end-trimmed stress-strain data from source files, as well
+as ultimate strengths from another file. It then determines for each source
+file the minimum extension above which the stress-strain data is considered
+valid, based either on a percentage of the maximum stress, or on a threshold on
+the second derivative of the stress. The minimum extensions are finally saved
+at the provided location."""
 
 import argparse
 import pandas as pd
 from typing import Optional
 from scipy.signal import savgol_filter
+from warnings import warn
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
-from ..tools.fields import identifier_field, begin_field, \
-  ultimate_strength_field, extension_field, stress_field
+from ..tools.fields import (identifier_field, begin_field, extension_field,
+                            stress_field)
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -47,9 +48,6 @@ if __name__ == '__main__':
                            "value below which the data is not considered "
                            "valid. Only used with the second derivative "
                            "method.")
-  parser.add_argument('ultimate_strength_file', type=checker_valid_csv,
-                      nargs=1, help="Path to the .csv file containing the "
-                                    "ultimate strength.")
   parser.add_argument('source_files', type=checker_valid_csv, nargs='+',
                       help="Paths to the .csv files containing the "
                            "stress-strain data.")
@@ -62,41 +60,44 @@ if __name__ == '__main__':
   sec_dev_thresh = args.second_derivative_threshold[0] / 100
   source_files = args.source_files
   threshold = args.stress_threshold[0] / 100
-  ultimate_strength_file = args.ultimate_strength_file[0]
 
   # Creating the dataframe to save
   to_write: Optional[pd.DataFrame] = None
 
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
-  # Reading the max points file and sorting the stress values
-  ultimate_strength = pd.read_csv(ultimate_strength_file).sort_values(
-    by=[identifier_field])
-  max_stresses = ultimate_strength[ultimate_strength_field]
 
   # Iterating over the source files
-  for path, max_stress in zip(source_files, max_stresses):
+  for path in source_files:
     # Reading data from the source file
     test_nr = get_nr(path)
     data = pd.read_csv(path)
 
+    # Restricting data to the portion of interest
+    idx_max = data[stress_field].idxmax()
+    idx_min = data.iloc[:idx_max][stress_field].idxmin()
+    data = data.iloc[idx_min: idx_max]
+
     # Determining the beginning point of the valid data based on the value of
     # the second derivative
     if use_second_dev:
-      ext_max = data[extension_field].where(
-        abs(data[stress_field] - max_stress) / max_stress < 1e-3).min()
-      filtered_stress = savgol_filter(
-        data[stress_field].values, nb_points_smooth, 3,
-        deriv=2)[data[extension_field] <= ext_max]
-      filtered_ext = data[extension_field][data[extension_field] <= ext_max]
-      begin = filtered_ext[filtered_stress >
-                           sec_dev_thresh * filtered_stress.max()].min()
+
+      if nb_points_smooth > len(data):
+        warn(f"Reduced the number of points from {nb_points_smooth} to "
+             f"{int(len(data) / 10)} !", RuntimeWarning)
+        nb_points_smooth = int(len(data) / 10)
+
+      sec_dev = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
+                              deriv=2)
+      begin = data[extension_field][sec_dev >
+                                    sec_dev_thresh * sec_dev.max()].min()
 
     # Determining the beginning point of the valid data based on a stress
     # threshold
     else:
+      stress_amp = data[stress_field].max() - data[stress_field].min()
       begin = data[extension_field][data[stress_field] >
-                                    threshold * max_stress].min()
+                                    threshold * stress_amp].min()
 
     # Adding the values to the dataframe to save
     if to_write is None:

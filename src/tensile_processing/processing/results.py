@@ -18,12 +18,15 @@ if __name__ == '__main__':
   parser.add_argument('notes_file', type=checker_valid_csv, nargs=1,
                       help="Path to the .csv file containing the metadata from"
                            " the tests.")
-  parser.add_argument('begin_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the data on the "
-                           "begin extensions.")
   parser.add_argument('end_file', type=checker_valid_csv, nargs=1,
                       help="Path to the .csv file containing the data on the "
                            "end extensions.")
+  parser.add_argument('begin_file', type=checker_valid_csv, nargs=1,
+                      help="Path to the .csv file containing the data on the "
+                           "begin extensions.")
+  parser.add_argument('end_fit_file', type=checker_valid_csv, nargs=1,
+                      help="Path to the .csv file containing the data on the "
+                           "end extensions for a fit with Yeoh.")
   parser.add_argument('ultimate_strength_file', type=checker_valid_csv,
                       nargs=1, help="Path to the .csv file containing the "
                                     "ultimate strength data.")
@@ -43,8 +46,9 @@ if __name__ == '__main__':
 
   # Getting the arguments from the parser
   notes_file = args.notes_file[0]
-  begin_file = args.begin_file[0]
   end_file = args.end_file[0]
+  begin_file = args.begin_file[0]
+  end_fit_file = args.end_fit_file[0]
   ultimate_strength_file = args.ultimate_strength_file[0]
   extensibility_file = args.extensibility_file[0]
   yeoh_file = args.yeoh_file[0]
@@ -53,8 +57,9 @@ if __name__ == '__main__':
 
   # Reading the data files
   notes = pd.read_csv(notes_file)
-  begin = pd.read_csv(begin_file)
   end = pd.read_csv(end_file)
+  begin = pd.read_csv(begin_file)
+  end_fit = pd.read_csv(end_fit_file)
   ultimate_strength = pd.read_csv(ultimate_strength_file)
   extensibility = pd.read_csv(extensibility_file)
   yeoh = pd.read_csv(yeoh_file)
@@ -62,9 +67,11 @@ if __name__ == '__main__':
 
   # Aggregating the data into a single results file
   results = notes.copy(deep=True)
+  results = results.join(end.set_index(identifier_field),
+                         on=identifier_field)
   results = results.join(begin.set_index(identifier_field),
                          on=identifier_field)
-  results = results.join(end.set_index(identifier_field),
+  results = results.join(end_fit.set_index(identifier_field),
                          on=identifier_field)
   results = results.join(ultimate_strength.set_index(identifier_field),
                          on=identifier_field)
