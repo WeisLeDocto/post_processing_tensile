@@ -15,7 +15,7 @@ from typing import Optional
 from warnings import warn
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
-from ..tools.fields import (identifier_field, end_field,
+from ..tools.fields import (identifier_field, end_fit_field,
                             extension_field, stress_field, extensibility_field,
                             ultimate_strength_field)
 from ..tools.get_nr import get_nr
@@ -130,10 +130,11 @@ if __name__ == '__main__':
 
     # Adding the values to the dataframe to save
     if to_write is None:
-      to_write = pd.DataFrame({identifier_field: [test_nr], end_field: [end]})
+      to_write = pd.DataFrame({identifier_field: [test_nr],
+                               end_fit_field: [end]})
     else:
       to_write = pd.concat((to_write, pd.DataFrame(
-        {identifier_field: [test_nr], end_field: [end]})))
+        {identifier_field: [test_nr], end_fit_field: [end]})))
 
   # Saving the values to the destination file
   to_write.to_csv(destination, index=False)

@@ -8,7 +8,7 @@ import argparse
 import pandas as pd
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
-from ..tools.fields import identifier_field, end_field, extension_field
+from ..tools.fields import identifier_field, end_fit_field, extension_field
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
   # Reading the end extensions from the data files
   end = pd.read_csv(end_file)
-  end = float(end[end_field][end[identifier_field] == test_nr].iloc[0])
+  end = float(end[end_fit_field][end[identifier_field] == test_nr].iloc[0])
 
   # Keeping only the valid data
   valid = data[data[extension_field] <= end]
