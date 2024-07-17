@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 
 from ..tools.argparse_checkers import checker_is_tiff, checker_valid_csv
-from ..tools.fields import identifier_field, begin_field, end_field, \
+from ..tools.fields import identifier_field, begin_field, end_fit_field, \
   extension_field, stress_field
 from ..tools.get_nr import get_nr
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
   parser.add_argument('begin_file', type=checker_valid_csv, nargs=1,
                       help="Path to the .csv file containing the minimum "
                            "extension of the valid data.")
-  parser.add_argument('end_file', type=checker_valid_csv, nargs=1,
+  parser.add_argument('end_fit_file', type=checker_valid_csv, nargs=1,
                       help="Path to the .csv file containing the maximum "
                            "extension of the valid data.")
   args = parser.parse_args()
@@ -39,7 +39,7 @@ if __name__ == '__main__':
   destination = args.destination_file[0]
   source = args.source_file[0]
   begin_file = args.begin_file[0]
-  end_file = args.end_file[0]
+  end_fit_file = args.end_fit_file[0]
 
   # Extracting data from the source file
   test_nr = get_nr(source)
@@ -49,8 +49,8 @@ if __name__ == '__main__':
   begins = pd.read_csv(begin_file)
   begin = float(begins[begin_field]
                 [begins[identifier_field] == test_nr].iloc[0])
-  ends = pd.read_csv(end_file)
-  end = float(ends[end_field][ends[identifier_field] == test_nr].iloc[0])
+  ends = pd.read_csv(end_fit_file)
+  end = float(ends[end_fit_field][ends[identifier_field] == test_nr].iloc[0])
 
   # The end cutoff is calculated in an already re-interpolated extension basis
   # It needs to be multiplied by the beginning cutoff to obtain the end cutoff

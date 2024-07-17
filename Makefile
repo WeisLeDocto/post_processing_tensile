@@ -219,7 +219,7 @@ $(SMOOTH_PLOTS_POSITION_FOLDER)/%.tiff: $(SAVE_CURVE_EXE_FILE) $(addprefix $(SMO
 	@$(SAVE_CURVE_EXE) $(abspath $(filter-out $<, $^)) $(abspath $@)
 
 .PHONY: begin_end_plots
-begin_end_plots: $(BEGIN_END_PLOTS_FILES) ## Plots the stress_strain data in .tiff files for each test, with vertical lines indicating the begin and end cutoff extension
+begin_end_plots: $(BEGIN_END_PLOTS_FILES) ## Plots the stress_strain data in .tiff files for each test, with vertical lines indicating the begin and end cutoff extensions
 
 $(BEGIN_END_PLOTS_FOLDER)/%.tiff: $(BEGIN_END_CURVE_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE) $(END_FIT_FILE)
 	@mkdir -p $(@D)
