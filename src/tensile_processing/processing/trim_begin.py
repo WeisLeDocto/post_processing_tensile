@@ -1,8 +1,9 @@
 # coding: utf-8
 
-"""This script reads stress-strain data from the source file, as well as the
-beginning from another file. It then trims the beginning of the stress-strain
-data, and saves the trimmed data at the provided location."""
+"""This script reads end-trimmed stress-strain data from the source file, as
+well as the begin cutoff extension from another file. It then trims the
+beginning of the stress-strain data, and saves the trimmed data at the provided
+location."""
 
 import argparse
 import pandas as pd
@@ -16,19 +17,19 @@ if __name__ == '__main__':
 
   # Parser for parsing the command line arguments of the script
   parser = argparse.ArgumentParser(
-    description="Reads the stress-strain data from the source files, as well "
-                "as the begin values. Then, trims the beginning of the "
-                "stress-strain data and saves the trimmed data in the "
-                "destination file.")
+    description="Reads the begin-trimmed stress-strain data from the source "
+                "files, as well as the begin cutoff extension values. Then, "
+                "trims the beginning of the stress-strain data and saves the "
+                "trimmed data in the destination file.")
   parser.add_argument('destination_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where to save the trimmed "
                            "stress-strain data.")
   parser.add_argument('source_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv files containing the "
+                      help="Path to the .csv files containing the end-trimmed"
                            "stress-strain data.")
   parser.add_argument('begin_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the begin "
-                           "extension data.")
+                      help="Path to the .csv file containing the begin cutoff "
+                           "extension values.")
   args = parser.parse_args()
 
   # Getting the arguments from the parser

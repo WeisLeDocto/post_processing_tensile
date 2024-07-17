@@ -61,8 +61,8 @@ ifeq ($(RECURSIVE),true)
 $(DATA_DIRECTORIES)::
 	@$(MAKE) -C $@ $(MAKECMDGOALS)
 
-.PHONY: clean smooth stress_strain end trim_end ultimate_strength begin trim_begin extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
-clean smooth stress_strain end trim_end ultimate_strength begin trim_begin extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
+.PHONY: clean smooth stress_strain end trim_end begin trim_begin ultimate_strength extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots
+clean smooth stress_strain end trim_end begin trim_begin ultimate_strength extensibility end_fit trim_end_fit yeoh_interpolation tangent_moduli raw_plots smooth_plots begin_end_plots stress_strain_plots yeoh_interpolation_plots tangent_moduli_plots: $(DATA_DIRECTORIES)
 
 # In case TARGET_DIRECTORY is specified, also making a global results file to summarize the sub-results ones
 # The prerequisites need to run in a specific order
@@ -123,6 +123,22 @@ $(END_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_EXE_FILE) $(STRESS_ST
 	@echo "Writing $(abspath $@)"
 	@$(TRIM_END_EXE)  $(abspath $@) $(abspath $(filter-out $<, $^))
 
+.PHONY: begin
+begin: $(BEGIN_FILE) ## Detects the begin extension of the valid stress-strain data for each test, and saves it to a .csv file
+
+$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(END_TRIMMED_STRESS_STRAIN_FILES) $(PARAMS_DETECT_BEGIN_FILE)
+	@mkdir -p $(@D)
+	@echo "Writing $(abspath $@)"
+	@$(BEGIN_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(NB_POINTS_SMOOTH_BEGIN) $(SECOND_DERIVATIVE_THRESHOLD) $(abspath $(filter-out $< $(PARAMS_DETECT_BEGIN_FILE), $^))
+
+.PHONY: trim_begin
+trim_begin: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the end-trimmed stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
+
+$(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_BEGIN_EXE_FILE) $(END_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE)
+	@mkdir -p $(@D)
+	@echo "Writing $(abspath $@)"
+	@$(TRIM_BEGIN_EXE)  $(abspath $@) $(abspath $(filter-out $<, $^))
+
 .PHONY: ultimate_strength
 ultimate_strength: $(ULTIMATE_STRENGTH_FILE) ## Detects the ultimate strength from the stress-strain data for each test, and saves the values to a .csv file
 
@@ -130,22 +146,6 @@ $(ULTIMATE_STRENGTH_FILE): $(ULTIMATE_STRENGTH_EXE_FILE) $(STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(ULTIMATE_STRENGTH_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
-
-.PHONY: begin
-begin: $(BEGIN_FILE) ## Detects the begin extension of the valid stress-strain data for each test, and saves it to a .csv file
-
-$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(STRESS_STRAIN_FILES) $(PARAMS_DETECT_BEGIN_FILE)
-	@mkdir -p $(@D)
-	@echo "Writing $(abspath $@)"
-	@$(BEGIN_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(NB_POINTS_SMOOTH_BEGIN) $(SECOND_DERIVATIVE_THRESHOLD) $(abspath $(filter-out $< $(PARAMS_DETECT_BEGIN_FILE), $^))
-
-.PHONY: trim_begin
-trim_begin: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
-
-$(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_BEGIN_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv $(BEGIN_FILE)
-	@mkdir -p $(@D)
-	@echo "Writing $(abspath $@)"
-	@$(TRIM_BEGIN_EXE)  $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: extensibility
 extensibility: $(EXTENSIBILITY_FILE) ## Detects the extensibility from the stress-strain data for each test, and saves the values to a .csv file
