@@ -140,15 +140,15 @@ $(TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_BEGIN_EXE_FILE) $(END_TRIMMED
 	@$(TRIM_BEGIN_EXE)  $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: ultimate_strength
-ultimate_strength: $(ULTIMATE_STRENGTH_FILE) ## Detects the ultimate strength from the stress-strain data for each test, and saves the values to a .csv file
+ultimate_strength: $(ULTIMATE_STRENGTH_FILE) ## Detects the ultimate strength from the trimmed stress-strain data for each test, and saves the values to a .csv file
 
-$(ULTIMATE_STRENGTH_FILE): $(ULTIMATE_STRENGTH_EXE_FILE) $(STRESS_STRAIN_FILES)
+$(ULTIMATE_STRENGTH_FILE): $(ULTIMATE_STRENGTH_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(ULTIMATE_STRENGTH_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: extensibility
-extensibility: $(EXTENSIBILITY_FILE) ## Detects the extensibility from the stress-strain data for each test, and saves the values to a .csv file
+extensibility: $(EXTENSIBILITY_FILE) ## Detects the extensibility from the trimmed stress-strain data for each test, and saves the values to a .csv file
 
 $(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
