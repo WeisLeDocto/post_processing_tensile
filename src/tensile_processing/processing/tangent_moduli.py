@@ -47,7 +47,7 @@ if __name__ == '__main__':
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
   # Creating the dataframe to save
-  to_write : Optional[pd.DataFrame] = None
+  to_write: Optional[pd.DataFrame] = None
 
   # Iterating over the source files
   for path in source_files:
