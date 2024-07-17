@@ -239,7 +239,12 @@ $(ALL_STRESS_STRAIN_CURVES): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(STRES
 	@echo "Writing $(abspath $@)"
 	@$(ALL_STRESS_STRAIN_EXE) $(abspath $(word 2,$^)) $(abspath $@) $(abspath $(filter-out $< $(NOTES_FILE), $^))
 
-$(ALL_STRESS_STRAIN_CURVES_TRIMMED): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(TRIMMED_FIT_STRESS_STRAIN_FILES)
+$(ALL_STRESS_STRAIN_CURVES_TRIMMED): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
+	@mkdir -p $(@D)
+	@echo "Writing $(abspath $@)"
+	@$(ALL_STRESS_STRAIN_EXE) $(abspath $(word 2,$^)) $(abspath $@) $(abspath $(filter-out $< $(NOTES_FILE), $^))
+
+$(ALL_STRESS_STRAIN_CURVES_TRIMMED_FIT): $(ALL_STRESS_STRAIN_EXE_FILE) $(NOTES_FILE) $(TRIMMED_FIT_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
 	@$(ALL_STRESS_STRAIN_EXE) $(abspath $(word 2,$^)) $(abspath $@) $(abspath $(filter-out $< $(NOTES_FILE), $^))

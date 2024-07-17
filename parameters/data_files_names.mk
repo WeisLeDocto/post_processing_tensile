@@ -72,6 +72,7 @@ STRESS_STRAIN_PLOTS_FOLDER := $(PLOTS_FOLDER)/stress_strain_curves
 STRESS_STRAIN_PLOTS_FILES := $(patsubst $(TEST_DATA_FOLDER)/%/$(EFFORT_FILE_NAME), $(STRESS_STRAIN_PLOTS_FOLDER)/%.tiff, $(VALID_EFFORT_DATA))
 ALL_STRESS_STRAIN_CURVES := $(PLOTS_FOLDER)/all_stress_strain.tiff
 ALL_STRESS_STRAIN_CURVES_TRIMMED := $(PLOTS_FOLDER)/all_stress_strain_trimmed.tiff
+ALL_STRESS_STRAIN_CURVES_TRIMMED_FIT := $(PLOTS_FOLDER)/all_stress_strain_trimmed_fit.tiff
 
 # Paths to the Yeoh interpolation plots folder and files
 INTERPOLATION_CURVES_FOLDER := $(PLOTS_FOLDER)/yeoh_interpolated_curves
