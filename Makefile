@@ -227,7 +227,7 @@ $(BEGIN_END_PLOTS_FOLDER)/%.tiff: $(BEGIN_END_CURVE_EXE_FILE) $(STRESS_STRAIN_DA
 	@$(BEGIN_END_CURVE_EXE) $(abspath $@) $(abspath $(filter-out $<, $^))
 
 .PHONY: stress_strain_plots
-stress_strain_plots: $(STRESS_STRAIN_PLOTS_FILES) $(ALL_STRESS_STRAIN_CURVES) $(ALL_STRESS_STRAIN_CURVES_TRIMMED) ## Plots the stress-strain data in .tiff files for each test, as well a one .tiff file of all the stress-strain data and one .tiff file of all the trimmed stress-strain data
+stress_strain_plots: $(STRESS_STRAIN_PLOTS_FILES) $(ALL_STRESS_STRAIN_CURVES) $(ALL_STRESS_STRAIN_CURVES_TRIMMED) $(ALL_STRESS_STRAIN_CURVES_TRIMMED_FIT) ## Plots the stress-strain data in .tiff files for each test, as well a one .tiff file of all the stress-strain data and one .tiff file of all the trimmed stress-strain data
 
 $(STRESS_STRAIN_PLOTS_FOLDER)/%.tiff: $(SAVE_CURVE_EXE_FILE) $(STRESS_STRAIN_DATA_FOLDER)/%.csv
 	@mkdir -p $(@D)
