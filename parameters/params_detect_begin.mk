@@ -10,7 +10,7 @@ export BEGIN_STRESS_THRESHOLD := 2
 # The number of points to use for the Savitzky–Golay filter applied when
 # determining the begin extension of the valid data, if using the second
 # derivative method
-export NB_POINTS_SMOOTH_BEGIN := 3000
+export NB_POINTS_SMOOTH_BEGIN := 1000
 # The second derivative threshold used for determining the begin extension of
 # the valid data will be
 # SECOND_DERIVATIVE_THRESHOLD / 100 * max_second_derivative, if
