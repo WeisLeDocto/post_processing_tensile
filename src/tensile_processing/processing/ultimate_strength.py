@@ -1,7 +1,7 @@
 # coding: utf-8
 
-"""This script reads stress-strain data from source files, determines for each
-source file the ultimate strength, and saves the data at the provided
+"""This script reads trimmed stress-strain data from source files, determines
+for each source file the ultimate strength, and saves the data at the provided
 location."""
 
 import argparse
@@ -42,8 +42,7 @@ if __name__ == '__main__':
     data = pd.read_csv(path)
 
     # Retrieving the ultimate strength
-    index_max = data[stress_field].idxmax()
-    ultimate_strength = data[stress_field].iloc[index_max]
+    ultimate_strength = data[stress_field].max() - data[stress_field].min()
 
     # Adding the values to the dataframe to save
     if to_write is None:

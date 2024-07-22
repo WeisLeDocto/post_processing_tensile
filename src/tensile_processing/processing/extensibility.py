@@ -1,7 +1,8 @@
 # coding: utf-8
 
-"""This script reads stress-strain data from source files, determines for each
-source file the extensibility, and saves the data at the provided location."""
+"""This script reads trimmed stress-strain data from source files, determines
+for each source file the extensibility, and saves the data at the provided
+location."""
 
 import argparse
 import pandas as pd
@@ -13,8 +14,6 @@ from ..tools.fields import (identifier_field, extensibility_field,
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
-
-  # calculate max strain on data trimmed at the beginning
 
   # Parser for parsing the command line arguments of the script
   parser = argparse.ArgumentParser(
@@ -44,7 +43,8 @@ if __name__ == '__main__':
 
     # Retrieving the extensibility
     index_max = data[stress_field].idxmax()
-    extensibility = data[extension_field].iloc[index_max]
+    extensibility = (data[extension_field].iloc[index_max] -
+                     data[extension_field].min())
 
     # Adding the values to the dataframe to save
     if to_write is None:
