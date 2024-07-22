@@ -32,7 +32,7 @@ endif
 ifeq ($(MAKELEVEL),0)
 	ifdef TARGET_DIRECTORY
 		RECURSIVE := true
-		DATA_DIRECTORIES := $(dir $(abspath $(wildcard $(TARGET_DIRECTORY)*/*/Makefile)))
+		DATA_DIRECTORIES := $(dir $(abspath $(wildcard $(TARGET_DIRECTORY)*/Makefile)))
 	else
 		RECURSIVE := false
 		DATA_DIRECTORIES := ./
