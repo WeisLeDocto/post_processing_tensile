@@ -107,7 +107,7 @@ if __name__ == '__main__':
       # Restricting to the first part of the curve to limit noise on the
       # second derivative
       data = data[data[stress_field] <
-                  data[stress_field].min() + 0.25 * stress_amp]
+                  data[stress_field].min() + 0.15 * stress_amp]
 
       if nb_points_smooth > len(data):
         warn(f"Reduced the number of points from {nb_points_smooth} to "
