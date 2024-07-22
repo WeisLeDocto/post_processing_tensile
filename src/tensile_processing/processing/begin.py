@@ -93,8 +93,15 @@ if __name__ == '__main__':
 
       sec_dev = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
                               deriv=2)
-      begin = data[extension_field][sec_dev >
-                                    sec_dev_thresh * sec_dev.max()].min()
+
+      # Only the part of the second derivative until the maximum is of interest
+      data = data.iloc[:sec_dev.argmax()]
+      sec_dev = sec_dev[:sec_dev.argmax()]
+
+      # Cutting at the last value below threshold, so that everything after it
+      # is above
+      begin = data[extension_field][sec_dev <
+                                    sec_dev_thresh * sec_dev.max()].max()
 
     # Determining the beginning point of the valid data based on a stress
     # threshold
