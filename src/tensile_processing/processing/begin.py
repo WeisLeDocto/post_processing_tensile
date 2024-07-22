@@ -123,8 +123,11 @@ if __name__ == '__main__':
 
       # Cutting at the last value below threshold, so that everything after it
       # is above
-      thresh = sec_dev.min() + sec_dev_thresh * (sec_dev.max() - sec_dev.min())
-      begin = data[extension_field][sec_dev < thresh].max()
+      mask = sec_dev < sec_dev_thresh * sec_dev.max()
+      if mask.any():
+        begin = data[extension_field][mask].max()
+      else:
+        begin = data[extension_field].min()
 
     # Determining the beginning point of the valid data based on a stress
     # threshold
