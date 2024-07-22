@@ -82,6 +82,10 @@ if __name__ == '__main__':
     # the second derivative
     if use_second_dev:
 
+      # Restricting to the first part of the curve to limit noise on the
+      # second derivative
+      data = data[data[stress_field] < 0.25 * data[stress_field].max()]
+
       if nb_points_smooth > len(data):
         warn(f"Reduced the number of points from {nb_points_smooth} to "
              f"{int(len(data) / 2)} !", RuntimeWarning)
