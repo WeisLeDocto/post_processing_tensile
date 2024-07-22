@@ -10,8 +10,9 @@ at the provided location."""
 import argparse
 import pandas as pd
 from typing import Optional
-from scipy.signal import savgol_filter
+from scipy.signal import savgol_filter, find_peaks
 from warnings import warn
+import numpy as np
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import (identifier_field, begin_field, extension_field,
@@ -48,6 +49,13 @@ if __name__ == '__main__':
                            "value below which the data is not considered "
                            "valid. Only used with the second derivative "
                            "method.")
+  parser.add_argument('peak_prominence', type=float, nargs=1,
+                      help="Minimum percentage of the total stress range in "
+                           "the test above which a local stress peak will "
+                           "be considered as the end of the valid data.")
+  parser.add_argument('nb_points_peak', type=int, nargs=1,
+                      help="Maximum width, in samples, of stress peaks to "
+                           "consider for selecting the end cutoff extension.")
   parser.add_argument('source_files', type=checker_valid_csv, nargs='+',
                       help="Paths to the .csv files containing the "
                            "stress-strain data.")
@@ -59,7 +67,9 @@ if __name__ == '__main__':
   nb_points_smooth = args.nb_points_smooth[0]
   sec_dev_thresh = args.second_derivative_threshold[0] / 100
   source_files = args.source_files
-  threshold = args.stress_threshold[0] / 100
+  stress_threshold = args.stress_threshold[0] / 100
+  peak_prominence = args.peak_prominence[0] / 100
+  nb_points_peak = args.nb_points_peak[0]
 
   # Creating the dataframe to save
   to_write: Optional[pd.DataFrame] = None
@@ -76,15 +86,28 @@ if __name__ == '__main__':
     # Restricting data to the portion of interest
     idx_max = data[stress_field].idxmax()
     idx_min = data.iloc[:idx_max][stress_field].idxmin()
+    stress_amp = data[stress_field].max() - data[stress_field].min()
     data = data.iloc[idx_min: idx_max]
 
     # Determining the beginning point of the valid data based on the value of
     # the second derivative
     if use_second_dev:
 
+      # Searching for a sudden drop in the stress values
+      max_indices, _ = find_peaks(data[stress_field].values,
+                                  prominence=(peak_prominence * stress_amp,
+                                              None),
+                                  width=(None, nb_points_peak),
+                                  rel_height=1)
+
+      # Excluding data after the drop in stress values, if one was detected
+      if max_indices.size:
+        data = data.iloc[:np.min(max_indices)]
+
       # Restricting to the first part of the curve to limit noise on the
       # second derivative
-      data = data[data[stress_field] < 0.25 * data[stress_field].max()]
+      data = data[data[stress_field] <
+                  data[stress_field].min() + 0.25 * stress_amp]
 
       if nb_points_smooth > len(data):
         warn(f"Reduced the number of points from {nb_points_smooth} to "
@@ -100,15 +123,14 @@ if __name__ == '__main__':
 
       # Cutting at the last value below threshold, so that everything after it
       # is above
-      begin = data[extension_field][sec_dev <
-                                    sec_dev_thresh * sec_dev.max()].max()
+      thresh = sec_dev.min() + sec_dev_thresh * (sec_dev.max() - sec_dev.min())
+      begin = data[extension_field][sec_dev < thresh].max()
 
     # Determining the beginning point of the valid data based on a stress
     # threshold
     else:
-      stress_amp = data[stress_field].max() - data[stress_field].min()
-      begin = data[extension_field][data[stress_field] >
-                                    threshold * stress_amp].min()
+      thresh = data[stress_field].min() + stress_threshold * stress_amp
+      begin = data[extension_field][data[stress_field] > thresh].min()
 
     # Adding the values to the dataframe to save
     if to_write is None:
