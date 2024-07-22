@@ -95,8 +95,8 @@ if __name__ == '__main__':
     # of data points
     if nb_points_smooth > len(data):
       warn(f"Reduced the number of points from {nb_points_smooth} to "
-           f"{int(len(data) / 10)} !", RuntimeWarning)
-      nb_points_smooth = int(len(data) / 10)
+           f"{int(len(data) / 2)} !", RuntimeWarning)
+      nb_points_smooth = int(len(data) / 2)
 
     # Retrieving the first point where the second derivative cancels
     if use_second_dev:

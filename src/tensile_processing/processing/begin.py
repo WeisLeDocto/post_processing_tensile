@@ -84,8 +84,8 @@ if __name__ == '__main__':
 
       if nb_points_smooth > len(data):
         warn(f"Reduced the number of points from {nb_points_smooth} to "
-             f"{int(len(data) / 10)} !", RuntimeWarning)
-        nb_points_smooth = int(len(data) / 10)
+             f"{int(len(data) / 2)} !", RuntimeWarning)
+        nb_points_smooth = int(len(data) / 2)
 
       sec_dev = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
                               deriv=2)
