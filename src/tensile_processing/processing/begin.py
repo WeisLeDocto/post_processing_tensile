@@ -11,7 +11,6 @@ import argparse
 import pandas as pd
 from typing import Optional
 from scipy.signal import savgol_filter, find_peaks
-from warnings import warn
 import numpy as np
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
@@ -38,12 +37,6 @@ if __name__ == '__main__':
                       help="The percentage of the total stress below which the"
                            " data is not considered valid. Only used with the "
                            "stress threshold method.")
-  parser.add_argument('nb_points_smooth', type=int, nargs=1,
-                      help="Number of points to use for running the "
-                           "Savitzky-Golay filter for smoothening the second "
-                           "derivative of the stress, if the second derivative"
-                           " method is used. Only used with the second "
-                           "derivative method.")
   parser.add_argument('second_derivative_threshold', type=float, nargs=1,
                       help="The percentage of the maximum second derivative "
                            "value below which the data is not considered "
@@ -64,7 +57,6 @@ if __name__ == '__main__':
   # Getting the arguments from the parser
   destination = args.destination_file[0]
   use_second_dev = True if args.use_second_derivative[0] == 'true' else False
-  nb_points_smooth = args.nb_points_smooth[0]
   sec_dev_thresh = args.second_derivative_threshold[0] / 100
   source_files = args.source_files
   stress_threshold = args.stress_threshold[0] / 100
@@ -108,14 +100,12 @@ if __name__ == '__main__':
       # second derivative
       data = data[data[stress_field] <
                   data[stress_field].min() + 0.15 * stress_amp]
+      min_ext = data[extension_field].min()
 
-      if nb_points_smooth > len(data):
-        warn(f"Reduced the number of points from {nb_points_smooth} to "
-             f"{int(len(data) / 2)} !", RuntimeWarning)
-        nb_points_smooth = int(len(data) / 2)
-
-      sec_dev = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
-                              deriv=2)
+      # Extreme curve smoothening before computing the second derivative
+      smooth = savgol_filter(data[stress_field].values,
+                             len(data[stress_field]) // 2, 3, deriv=0)
+      sec_dev = savgol_filter(smooth, len(smooth) // 2, 3, deriv=2)
 
       # Only the part of the second derivative until the maximum is of interest
       data = data.iloc[:sec_dev.argmax()]
@@ -123,11 +113,14 @@ if __name__ == '__main__':
 
       # Cutting at the last value below threshold, so that everything after it
       # is above
-      mask = sec_dev < sec_dev_thresh * sec_dev.max()
-      if mask.any():
-        begin = data[extension_field][mask].max()
+      if sec_dev.any():
+        mask = sec_dev < sec_dev_thresh * sec_dev.max()
+        if mask.any():
+          begin = data[extension_field][mask].max()
+        else:
+          begin = data[extension_field].min()
       else:
-        begin = data[extension_field].min()
+        begin = min_ext
 
     # Determining the beginning point of the valid data based on a stress
     # threshold
