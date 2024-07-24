@@ -11,4 +11,4 @@ export BEGIN_STRESS_THRESHOLD := 2
 # the valid data will be
 # SECOND_DERIVATIVE_THRESHOLD / 100 * max_second_derivative, if
 # using the second derivative method
-export SECOND_DERIVATIVE_THRESHOLD := 15
+export SECOND_DERIVATIVE_THRESHOLD := 30
