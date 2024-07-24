@@ -100,11 +100,13 @@ if __name__ == '__main__':
 
     # Retrieving the first point where the second derivative cancels
     if use_second_dev:
+      # Extreme curve smoothening before computing the second derivative
+      smooth = savgol_filter(data[stress_field].values,
+                             len(data[stress_field]) // 2, 3, deriv=0)
       # The maximum extension is determined as the first cancellation point of
       # the second derivative of the stress
-      filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
-                               deriv=2)
-      cancel = np.diff(np.sign(filtered))
+      sec_dev = savgol_filter(smooth, len(smooth) // 2, 3, deriv=2)
+      cancel = np.diff(np.sign(sec_dev))
       if np.any(cancel < 0):
         end = data[extension_field].values[np.min(np.where(cancel < 0))]
       else:
