@@ -108,6 +108,7 @@ if __name__ == '__main__':
       # second derivative
       data = data[data[stress_field] <
                   data[stress_field].min() + 0.15 * stress_amp]
+      min_ext = data[extension_field].min()
 
       if nb_points_smooth > len(data):
         warn(f"Reduced the number of points from {nb_points_smooth} to "
@@ -123,11 +124,14 @@ if __name__ == '__main__':
 
       # Cutting at the last value below threshold, so that everything after it
       # is above
-      mask = sec_dev < sec_dev_thresh * sec_dev.max()
-      if mask.any():
-        begin = data[extension_field][mask].max()
+      if sec_dev.any():
+        mask = sec_dev < sec_dev_thresh * sec_dev.max()
+        if mask.any():
+          begin = data[extension_field][mask].max()
+        else:
+          begin = data[extension_field].min()
       else:
-        begin = data[extension_field].min()
+        begin = min_ext
 
     # Determining the beginning point of the valid data based on a stress
     # threshold
