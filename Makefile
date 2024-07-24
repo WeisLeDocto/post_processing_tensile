@@ -129,7 +129,7 @@ begin: $(BEGIN_FILE) ## Detects the begin extension of the valid stress-strain d
 $(BEGIN_FILE): $(BEGIN_EXE_FILE) $(END_TRIMMED_STRESS_STRAIN_FILES) $(PARAMS_DETECT_BEGIN_FILE) $(PEAK_THRESHOLD_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(BEGIN_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(NB_POINTS_SMOOTH_BEGIN) $(SECOND_DERIVATIVE_THRESHOLD) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(abspath $(filter-out $< $(PARAMS_DETECT_BEGIN_FILE) $(PEAK_THRESHOLD_FILE), $^))
+	@$(BEGIN_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(SECOND_DERIVATIVE_THRESHOLD) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(abspath $(filter-out $< $(PARAMS_DETECT_BEGIN_FILE) $(PEAK_THRESHOLD_FILE), $^))
 
 .PHONY: trim_begin
 trim_begin: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the end-trimmed stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
