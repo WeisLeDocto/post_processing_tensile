@@ -110,13 +110,10 @@ if __name__ == '__main__':
                   data[stress_field].min() + 0.15 * stress_amp]
       min_ext = data[extension_field].min()
 
-      if nb_points_smooth > len(data):
-        warn(f"Reduced the number of points from {nb_points_smooth} to "
-             f"{int(len(data) / 2)} !", RuntimeWarning)
-        nb_points_smooth = int(len(data) / 2)
-
-      sec_dev = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
-                              deriv=2)
+      # Extreme curve smoothening before computing the second derivative
+      smooth = savgol_filter(data[stress_field].values,
+                             len(data[stress_field]) // 2, 3, deriv=0)
+      sec_dev = savgol_filter(smooth, len(smooth) // 2, 3, deriv=2)
 
       # Only the part of the second derivative until the maximum is of interest
       data = data.iloc[:sec_dev.argmax()]
