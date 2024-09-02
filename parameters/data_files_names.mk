@@ -6,7 +6,7 @@ NOTES_FILE := $(TEST_DATA_FOLDER)/notes.csv
 
 # Names of the initial data files to read
 EFFORT_FILE_NAME := effort.csv
-POSITION_FILE_NAME := position.csv
+POSITION_FILE_NAME := dep_moteur.csv
 
 # List of the valid effort data files
 VALID_EFFORT_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(EFFORT_FILE_NAME))
