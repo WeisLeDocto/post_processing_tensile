@@ -22,7 +22,7 @@ hyperelastic_modulus_field = 'Hyperelastic modulus (kPa)'
 
 # Fields of the data files
 time_field = 't(s)'
-position_field = 'pos moteur'
+position_field = 'pos_moteur'
 effort_field = 'F(N)'
 
 # Fields in the stress-strain file
