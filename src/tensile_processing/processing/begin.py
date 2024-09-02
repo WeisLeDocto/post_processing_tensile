@@ -108,6 +108,8 @@ if __name__ == '__main__':
       sec_dev = savgol_filter(smooth, len(smooth) // 2, 3, deriv=2)
 
       # Only the part of the second derivative until the maximum is of interest
+      data = data.iloc[sec_dev.argmin():]
+      sec_dev = sec_dev[sec_dev.argmin():]
       data = data.iloc[:sec_dev.argmax()]
       sec_dev = sec_dev[:sec_dev.argmax()]
 
