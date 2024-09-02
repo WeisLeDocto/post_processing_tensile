@@ -9,9 +9,10 @@ import numpy as np
 import pandas as pd
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
-from ..tools.fields import identifier_field, initial_length_field, \
-  height_offset_field, height_field, width_offset_field, width_field, \
-  extension_field, stress_field, time_field, position_field, effort_field
+from ..tools.fields import (identifier_field, initial_length_field,
+                            diameter_offset_field, diameter_field,
+                            extension_field, stress_field,
+                            time_field, position_field, effort_field)
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -60,23 +61,16 @@ if __name__ == '__main__':
   position_interp[:, 1] += init_length - position_interp[0, 1]
   lambda_ = position_interp / [1, position_interp[0, 1]]
 
-  # Getting the thickness of the sample
-  if height_offset_field is not None:
-    height = (float(notes[height_field].iloc[0]) -
-              float(notes[height_offset_field].iloc[0]))
+  # Getting the cross-section of the sample
+  if diameter_offset_field is not None:
+    section = np.pi * (notes[diameter_field].iloc[0] -
+                       notes[diameter_offset_field].iloc[0]) ** 2 / 4
   else:
-    height = float(notes[height_field].iloc[0])
-
-  # Getting the width of the sample
-  if width_offset_field is not None:
-    width = (float(notes[width_field].iloc[0]) -
-             float(notes[width_offset_field].iloc[0]))
-  else:
-    width = float(notes[width_field].iloc[0])
+    section = np.pi * notes[diameter_field].iloc[0] ** 2 / 4
 
   # Calculating the stress from the effort and the section
   stress = effort[[time_field,
-                   effort_field]].values / [1, width / 1000 * height / 1000]
+                   effort_field]].values / [1, section / 1e6]
   stress[:, 1] -= np.mean(stress[:200, 1])
   stress[:, 1] /= 1000
 

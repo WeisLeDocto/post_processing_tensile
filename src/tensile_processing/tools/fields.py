@@ -4,12 +4,10 @@
 
 # Fields in the results file
 identifier_field = 'Number'
-condition_field = 'Index'
-type_field = 'Type'
-height_offset_field = None
-height_field = 'Height (mm)'
-width_offset_field = None
-width_field = 'Width (mm)'
+condition_field = 'Condition'
+type_field = 'Donor'
+diameter_offset_field = None
+diameter_field = 'Diameter (mm)'
 initial_length_field = 'L0 (mm)'
 end_field = 'End extension (mm/mm)'
 begin_field = 'Begin extension (mm/mm)'
@@ -24,7 +22,7 @@ hyperelastic_modulus_field = 'Hyperelastic modulus (kPa)'
 
 # Fields of the data files
 time_field = 't(s)'
-position_field = 'pos(mm)'
+position_field = 'pos moteur'
 effort_field = 'F(N)'
 
 # Fields in the stress-strain file
