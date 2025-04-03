@@ -19,6 +19,8 @@ yeoh_1_field = 'Yeoh C1 (kPa)'
 young_modulus_field = 'Young modulus (kPa)'
 hyperelastic_offset_field = 'Hyperelastic offset (kPa)'
 hyperelastic_modulus_field = 'Hyperelastic modulus (kPa)'
+override_begin_extension_field = 'Override begin extension (mm/mm)'
+override_end_extension_fit_field = 'Override end extension fit (mm/mm)'
 
 # Fields of the data files
 time_field = 't(s)'

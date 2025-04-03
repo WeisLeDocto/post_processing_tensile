@@ -126,10 +126,10 @@ $(END_TRIMMED_STRESS_STRAIN_DATA_FOLDER)/%.csv: $(TRIM_END_EXE_FILE) $(STRESS_ST
 .PHONY: begin
 begin: $(BEGIN_FILE) ## Detects the begin extension of the valid stress-strain data for each test, and saves it to a .csv file
 
-$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(END_TRIMMED_STRESS_STRAIN_FILES) $(PARAMS_DETECT_BEGIN_FILE) $(PEAK_THRESHOLD_FILE)
+$(BEGIN_FILE): $(BEGIN_EXE_FILE) $(END_TRIMMED_STRESS_STRAIN_FILES) $(PARAMS_DETECT_BEGIN_FILE) $(PEAK_THRESHOLD_FILE) $(NOTES_FILE)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(BEGIN_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(SECOND_DERIVATIVE_THRESHOLD) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(abspath $(filter-out $< $(PARAMS_DETECT_BEGIN_FILE) $(PEAK_THRESHOLD_FILE), $^))
+	@$(BEGIN_EXE) $(abspath $@) $(NOTES_FILE) $(USE_SECOND_DERIVATIVE_BEGIN) $(BEGIN_STRESS_THRESHOLD) $(SECOND_DERIVATIVE_THRESHOLD) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(abspath $(filter-out $< $(NOTES_FILE) $(PARAMS_DETECT_BEGIN_FILE) $(PEAK_THRESHOLD_FILE), $^))
 
 .PHONY: trim_begin
 trim_begin: $(TRIMMED_STRESS_STRAIN_FILES) ## Takes the end-trimmed stress-strain data as an input, discards the invalid beginning part, and saves only the valid part of it to a .csv file for each test
@@ -158,10 +158,10 @@ $(EXTENSIBILITY_FILE): $(EXTENSIBILITY_EXE_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 .PHONY: end_fit
 end_fit: $(END_FIT_FILE) ## Detects the end extension of the stress-strain data valid for interpolation for each test, and saves it to a .csv file
 
-$(END_FIT_FILE): $(END_FIT_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
+$(END_FIT_FILE): $(END_FIT_EXE_FILE) $(ULTIMATE_STRENGTH_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE) $(NOTES_FILE) $(TRIMMED_STRESS_STRAIN_FILES)
 	@mkdir -p $(@D)
 	@echo "Writing $(abspath $@)"
-	@$(END_FIT_EXE) $(abspath $@) $(USE_SECOND_DERIVATIVE_END) $(NB_POINTS_SMOOTH_END) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(ULTIMATE_STRENGTH_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE), $^))
+	@$(END_FIT_EXE) $(abspath $@) $(NOTES_FILE) $(USE_SECOND_DERIVATIVE_END) $(NB_POINTS_SMOOTH_END) $(PEAK_THRESHOLD) $(PEAK_RANGE) $(ULTIMATE_STRENGTH_FILE) $(abspath $(filter-out $< $(ULTIMATE_STRENGTH_FILE) $(PARAMS_DETECT_BEGIN_END) $(PEAK_THRESHOLD_FILE) $(NOTES_FILE), $^))
 
 .PHONY: trim_end_fit
 trim_end_fit: $(TRIMMED_FIT_STRESS_STRAIN_FILES) ## Takes the trimmed stress-strain data as an input, keeps only the relevant part for  it to a .csv file for each test

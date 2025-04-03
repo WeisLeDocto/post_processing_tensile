@@ -12,10 +12,11 @@ import pandas as pd
 from typing import Optional
 from scipy.signal import savgol_filter, find_peaks
 import numpy as np
+from warnings import warn
 
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import (identifier_field, begin_field, extension_field,
-                            stress_field)
+                            stress_field, override_begin_extension_field)
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -28,6 +29,9 @@ if __name__ == '__main__':
   parser.add_argument('destination_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where to store the begin "
                            "extension data.")
+  parser.add_argument('notes_file', type=checker_valid_csv, nargs=1,
+                      help="Path to the .csv file containing the metadata "
+                           "collected during the tests.")
   parser.add_argument('use_second_derivative', type=str, nargs=1,
                       help="Boolean indicating whether to use the second "
                            "derivative method for detecting the minimum "
@@ -56,6 +60,7 @@ if __name__ == '__main__':
 
   # Getting the arguments from the parser
   destination = args.destination_file[0]
+  notes_file = args.notes_file[0]
   use_second_dev = True if args.use_second_derivative[0] == 'true' else False
   sec_dev_thresh = args.second_derivative_threshold[0] / 100
   source_files = args.source_files
@@ -69,11 +74,17 @@ if __name__ == '__main__':
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
 
+  # Reading the notes file
+  notes = pd.read_csv(notes_file)
+
   # Iterating over the source files
   for path in source_files:
     # Reading data from the source file
     test_nr = get_nr(path)
     data = pd.read_csv(path)
+
+    # Extracting data from the notes file
+    note = notes[notes[identifier_field] == test_nr]
 
     # Restricting data to the portion of interest
     idx_max = data[stress_field].idxmax()
@@ -129,6 +140,14 @@ if __name__ == '__main__':
     else:
       thresh = data[stress_field].min() + stress_threshold * stress_amp
       begin = data[extension_field][data[stress_field] > thresh].min()
+
+    # If specifying an override value for the beginning cutoff, use it instead
+    if (override_begin_extension_field in note.columns and
+        not note[override_begin_extension_field].isnull().any()):
+      override_begin = float(note[override_begin_extension_field].iloc[0])
+      warn(f'The computed begin extension value ({begin:.2f}) was forcibly '
+           f'overridden to {override_begin:.2f}', RuntimeWarning)
+      begin = override_begin
 
     # Adding the values to the dataframe to save
     if to_write is None:
