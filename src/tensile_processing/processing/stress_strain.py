@@ -58,8 +58,8 @@ if __name__ == '__main__':
                                         position[time_field].values,
                                         position['Total'].values)), axis=1)
   init_length = float(notes[initial_length_field].iloc[0])
-  position_interp[:, 1] += init_length - position_interp[0, 1]
-  lambda_ = position_interp / [1, position_interp[0, 1]]
+  position_interp[:, 1] += init_length
+  lambda_ = position_interp / [1, 20.0]
 
   # Getting the cross-section of the sample
   if diameter_offset_field is not None:

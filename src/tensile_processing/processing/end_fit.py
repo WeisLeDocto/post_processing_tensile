@@ -10,7 +10,7 @@ saved at the provided location."""
 import argparse
 import numpy as np
 import pandas as pd
-from scipy.signal import savgol_filter, find_peaks
+from scipy.signal import find_peaks
 from typing import Optional
 from warnings import warn
 
@@ -31,11 +31,6 @@ if __name__ == '__main__':
   parser.add_argument('destination_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where to store the end "
                            "extension data.")
-  parser.add_argument('use_second_derivative', type=str, nargs=1,
-                      help="Boolean indicating whether to use the second "
-                           "derivative method for detecting the maximum "
-                           "extension. Otherwise, the maximum of the first "
-                           "derivative is used.")
   parser.add_argument('nb_points_smooth', type=int, nargs=1,
                       help="Number of points to use for running the "
                            "Savitzky-Golay filter for smoothening the first "
@@ -58,7 +53,6 @@ if __name__ == '__main__':
   # Getting the arguments from the parser
   destination = args.destination_file[0]
   source_files = args.source_files
-  use_second_dev = True if args.use_second_derivative[0] == 'true' else False
   ultimate_strength_file = args.ultimate_strength_file[0]
   nb_points_smooth = args.nb_points_smooth[0]
   peak_prominence = args.peak_prominence[0] / 100
@@ -99,24 +93,7 @@ if __name__ == '__main__':
       nb_points_smooth = int(len(data) / 2)
 
     # Retrieving the first point where the second derivative cancels
-    if use_second_dev:
-      # Extreme curve smoothening before computing the second derivative
-      smooth = savgol_filter(data[stress_field].values,
-                             len(data[stress_field]) // 2, 3, deriv=0)
-      # The maximum extension is determined as the first cancellation point of
-      # the second derivative of the stress
-      sec_dev = savgol_filter(smooth, len(smooth) // 2, 3, deriv=2)
-      cancel = np.diff(np.sign(sec_dev))
-      if np.any(cancel < 0):
-        end = data[extension_field].values[np.min(np.where(cancel < 0))]
-      else:
-        end = data[extension_field].max()
-    else:
-      # The maximum extension is determined as the maximum of the first
-      # derivative of the stress
-      filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
-                               deriv=1)
-      end = data[extension_field].values[np.argmax(filtered)]
+    end = data[extension_field].max()
 
     # Adding the values to the dataframe to save
     if to_write is None:

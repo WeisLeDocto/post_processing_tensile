@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
   # Keeping only the valid data and offsetting the extension and the stress
   valid = data[data[extension_field] >= begin]
-  valid /= [valid[extension_field].iloc[0], 1]
+  # valid /= [valid[extension_field].iloc[0], 1]
   valid -= [0, valid[stress_field].iloc[0]]
 
   # Saving the values to the destination file

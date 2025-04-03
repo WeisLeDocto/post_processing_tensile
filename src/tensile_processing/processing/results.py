@@ -36,9 +36,6 @@ if __name__ == '__main__':
   parser.add_argument('yeoh_file', type=checker_valid_csv, nargs=1,
                       help="Path to the .csv file containing the data on the "
                            "Yeoh coefficients.")
-  parser.add_argument('tangent_moduli_file', type=checker_valid_csv, nargs=1,
-                      help="Path to the .csv file containing the data on the "
-                           "tangent moduli.")
   parser.add_argument('results_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where all the data should be"
                            " aggregated.")
@@ -52,7 +49,6 @@ if __name__ == '__main__':
   ultimate_strength_file = args.ultimate_strength_file[0]
   extensibility_file = args.extensibility_file[0]
   yeoh_file = args.yeoh_file[0]
-  tangent_moduli_file = args.tangent_moduli_file[0]
   results_file = args.results_file[0]
 
   # Reading the data files
@@ -63,7 +59,6 @@ if __name__ == '__main__':
   ultimate_strength = pd.read_csv(ultimate_strength_file)
   extensibility = pd.read_csv(extensibility_file)
   yeoh = pd.read_csv(yeoh_file)
-  moduli = pd.read_csv(tangent_moduli_file)
 
   # Aggregating the data into a single results file
   results = notes.copy(deep=True)
@@ -78,8 +73,6 @@ if __name__ == '__main__':
   results = results.join(extensibility.set_index(identifier_field),
                          on=identifier_field)
   results = results.join(yeoh.set_index(identifier_field),
-                         on=identifier_field)
-  results = results.join(moduli.set_index(identifier_field),
                          on=identifier_field)
 
   # Saving the results file at the requested destination

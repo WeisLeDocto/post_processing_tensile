@@ -1,18 +1,22 @@
 # This file contains all the variables holding the data folder and file names
 
 # Path to the experimental data files
-TEST_DATA_FOLDER := test_data
+TEST_DATA_FOLDER := /home/weis/Documents/Tests/BAM_Breaker/20250305_MyoB_fkt20_P3/test_data/
 NOTES_FILE := $(TEST_DATA_FOLDER)/notes.csv
 
 # Names of the initial data files to read
 EFFORT_FILE_NAME := effort.csv
-POSITION_FILE_NAME := dep_moteur.csv
+POSITION_FILE_NAME := dep_moteur.csv_corr.csv
 
 # List of the valid effort data files
-VALID_EFFORT_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(EFFORT_FILE_NAME))
+ALL_EFFORT_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(EFFORT_FILE_NAME))
+EFFORT_TO_EXCLUDE := $(TEST_DATA_FOLDER)/06-Control/$(EFFORT_FILE_NAME) $(TEST_DATA_FOLDER)/01-Control/$(EFFORT_FILE_NAME)
+VALID_EFFORT_DATA := $(filter-out $(EFFORT_TO_EXCLUDE), $(ALL_EFFORT_DATA))
 
 # List of the valid position data files
-VALID_POSITION_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(POSITION_FILE_NAME))
+ALL_POSITION_DATA := $(wildcard $(TEST_DATA_FOLDER)/*/$(POSITION_FILE_NAME))
+POSITION_TO_EXCLUDE := $(TEST_DATA_FOLDER)/06-Control/$(POSITION_FILE_NAME)
+VALID_POSITION_DATA := $(filter-out $(POSITION_TO_EXCLUDE), $(ALL_POSITION_DATA))
 
 # Path to the folders containing the data computed from the experimental data
 COMPUTED_DATA_FOLDER := computed_data

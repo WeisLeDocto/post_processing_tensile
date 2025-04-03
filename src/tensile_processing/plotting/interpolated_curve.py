@@ -10,9 +10,10 @@ from matplotlib import pyplot as plt
 import pandas as pd
 
 from ..tools.argparse_checkers import checker_is_tiff, checker_valid_csv
-from ..tools.yeoh_model import yeoh_2
-from ..tools.fields import identifier_field, yeoh_0_field, yeoh_1_field, \
-  extension_field, stress_field
+from ..tools.three_part_linear import three_part_linear
+from ..tools.fields import (identifier_field, x0_field, y0_field, x1_field,
+                            y1_field, x2_field, y2_field, x3_field, y3_field,
+                            extension_field, stress_field)
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -45,11 +46,18 @@ if __name__ == '__main__':
 
   # Reading data from the Yeoh parameter file
   yeoh = pd.read_csv(yeoh_file)
-  c0 = float(yeoh[yeoh_0_field][yeoh[identifier_field] == test_nr].iloc[0])
-  c1 = float(yeoh[yeoh_1_field][yeoh[identifier_field] == test_nr].iloc[0])
+  x0 = float(yeoh[x0_field][yeoh[identifier_field] == test_nr].iloc[0])
+  y0 = float(yeoh[y0_field][yeoh[identifier_field] == test_nr].iloc[0])
+  x1 = float(yeoh[x1_field][yeoh[identifier_field] == test_nr].iloc[0])
+  y1 = float(yeoh[y1_field][yeoh[identifier_field] == test_nr].iloc[0])
+  x2 = float(yeoh[x2_field][yeoh[identifier_field] == test_nr].iloc[0])
+  y2 = float(yeoh[y2_field][yeoh[identifier_field] == test_nr].iloc[0])
+  x3 = float(yeoh[x3_field][yeoh[identifier_field] == test_nr].iloc[0])
+  y3 = float(yeoh[y3_field][yeoh[identifier_field] == test_nr].iloc[0])
 
   # Calculating the stress with Yeoh's model
-  fitted = yeoh_2(data[extension_field].values, c0, c1)
+  fitted = three_part_linear(x0, x3, data[extension_field].values, y0, x1, y1,
+                             x2, y2, y3)
 
   # Drawing the figure
   fig = plt.figure()
