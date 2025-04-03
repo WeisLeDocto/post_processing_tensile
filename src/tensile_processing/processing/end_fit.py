@@ -17,7 +17,8 @@ from warnings import warn
 from ..tools.argparse_checkers import checker_is_csv, checker_valid_csv
 from ..tools.fields import (identifier_field, end_fit_field,
                             extension_field, stress_field,
-                            ultimate_strength_field)
+                            ultimate_strength_field,
+                            override_end_extension_fit_field)
 from ..tools.get_nr import get_nr
 
 if __name__ == '__main__':
@@ -31,6 +32,9 @@ if __name__ == '__main__':
   parser.add_argument('destination_file', type=checker_is_csv, nargs=1,
                       help="Path to the .csv file where to store the end "
                            "extension data.")
+  parser.add_argument('notes_file', type=checker_valid_csv, nargs=1,
+                      help="Path to the .csv file containing the metadata "
+                           "collected during the tests.")
   parser.add_argument('use_second_derivative', type=str, nargs=1,
                       help="Boolean indicating whether to use the second "
                            "derivative method for detecting the maximum "
@@ -57,6 +61,7 @@ if __name__ == '__main__':
 
   # Getting the arguments from the parser
   destination = args.destination_file[0]
+  notes_file = args.notes_file[0]
   source_files = args.source_files
   use_second_dev = True if args.use_second_derivative[0] == 'true' else False
   ultimate_strength_file = args.ultimate_strength_file[0]
@@ -69,6 +74,9 @@ if __name__ == '__main__':
   # Sorting the source files according to the test number
   source_files = sorted(source_files, key=get_nr)
 
+  # Reading the notes file
+  notes = pd.read_csv(notes_file)
+
   # Reading the ultimate strength file and sorting the stress values
   ultimate_strength = pd.read_csv(ultimate_strength_file).sort_values(
     by=[identifier_field])
@@ -79,6 +87,9 @@ if __name__ == '__main__':
     # Reading data from the source file
     test_nr = get_nr(path)
     data = pd.read_csv(path)
+
+    # Extracting data from the notes file
+    note = notes[notes[identifier_field] == test_nr]
 
     # Searching for a sudden drop in the stress values
     max_indices, _ = find_peaks(data[stress_field].values,
@@ -117,6 +128,14 @@ if __name__ == '__main__':
       filtered = savgol_filter(data[stress_field].values, nb_points_smooth, 3,
                                deriv=1)
       end = data[extension_field].values[np.argmax(filtered)]
+
+    # If specifying an override value for the end fit cutoff, use it instead
+    if (override_end_extension_fit_field in note.columns and
+        not note[override_end_extension_fit_field].isnull().any()):
+      override_end = float(note[override_end_extension_fit_field].iloc[0])
+      warn(f'The computed end extension fit value ({end:.2f}) was forcibly '
+           f'overridden to {override_end:.2f}', RuntimeWarning)
+      end = override_end
 
     # Adding the values to the dataframe to save
     if to_write is None:
