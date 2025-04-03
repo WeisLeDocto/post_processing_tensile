@@ -1,7 +1,7 @@
 # This file contains all the variables holding the data folder and file names
 
 # Path to the experimental data files
-TEST_DATA_FOLDER := /home/weis/Documents/Tests/BAM_Breaker/20250305_MyoB_fkt20_P3/test_data/
+TEST_DATA_FOLDER := test_data/
 NOTES_FILE := $(TEST_DATA_FOLDER)/notes.csv
 
 # Names of the initial data files to read
